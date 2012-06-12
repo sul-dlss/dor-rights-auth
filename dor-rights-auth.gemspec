@@ -20,6 +20,8 @@ Gem::Specification.new do |s|
   
   s.add_development_dependency "rspec", "< 2.0" # We're not ready to upgrade to rspec 2
   s.add_development_dependency "ruby-debug"
+  s.add_development_dependency "yard"
+  s.add_development_dependency "lyberteam-gems-devel"
  
   s.files        = Dir.glob("lib/**/*")
   s.require_path = 'lib'

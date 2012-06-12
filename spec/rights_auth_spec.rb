@@ -1,9 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Dor::RightsAuth do
-  before(:all) do
-    RIGHTS_MD_SERVICE_URL = 'http://purl-test.stanford.edu'
-  end
   
   describe "#stanford_only_unrestricted?" do
     
@@ -82,8 +79,8 @@ describe Dor::RightsAuth do
       rights.should_not be_stanford_only_unrestricted
     end
   end
-    
-  describe "#public?" do
+      
+  describe "#public_unrestricted?" do
     
     it "returns true if this object has world readable visibility" do
       rights =<<-EOXML
@@ -99,7 +96,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should be_public
+      r.should be_public_unrestricted
     end
     
     it "returns false if there is no machine readable world visibility" do
@@ -108,7 +105,7 @@ describe Dor::RightsAuth do
         <rightsMetadata>
           <access type="read">
             <machine>
-              <group>stanford:stanford</group>
+              <group>stanford</group>
             </machine>
           </access>
         </rightsMetadata>
@@ -116,7 +113,24 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public
+      r.should_not be_public_unrestricted
+    end
+    
+    it "returns false if there is no machine/world access WITHOUT a rule attribute" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <world rule="no-download" />
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      
+      r = Dor::RightsAuth.parse rights
+      r.should_not be_public_unrestricted
     end
     
     it "returns false if the rights metadata does not contain a read block" do
@@ -133,7 +147,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public
+      r.should_not be_public_unrestricted
     end
     
     it "returns false when there is file-level world access but object-level stanford-only access" do
@@ -149,7 +163,7 @@ describe Dor::RightsAuth do
           </access>
           <access type="read">
             <machine>
-              <group>stanford-only</group>
+              <group>stanford</group>
             </machine>
           </access>
         </rightsMetadata>
@@ -157,7 +171,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public
+      r.should_not be_public_unrestricted
     end
     
   end
@@ -296,7 +310,7 @@ describe Dor::RightsAuth do
     
   end
 
-  describe "#stanford_only_file?" do
+  describe "#stanford_only_unrestricted_file?" do
     
     before(:all) do
       rights =<<-EOXML
@@ -307,6 +321,12 @@ describe Dor::RightsAuth do
             <file>interviews2.doc</file> 
             <machine> 
               <group>stanford</group> 
+            </machine>
+          </access>
+          <access type="read">
+            <file>su-only-no-download.doc</file> 
+            <machine> 
+              <group rule="no-download">stanford</group> 
             </machine>
           </access>
           <access type="read">
@@ -322,15 +342,19 @@ describe Dor::RightsAuth do
     end
     
     it "returns true if a file has stanford-only read access" do
-       @r.should be_stanford_only_file('interviews1.doc')
+       @r.should be_stanford_only_unrestricted_file('interviews1.doc')
     end
     
-    it "returns the value of object level #stanford_only? if the queried file is not listed " do
-      @r.should_not be_stanford_only_file('object-level-rights.xml')
+    it "returns the value of object level #stanford_only_unrestricted? if the queried file is not listed " do
+      @r.should_not be_stanford_only_unrestricted_file('object-level-rights.xml')
+    end
+    
+    it "returns false if a file is stanford-only AND has a rule attribute" do
+      @r.should_not be_stanford_only_unrestricted_file('su-only-no-download.doc')
     end
   end
   
-  describe "#public_file?" do
+  describe "#public_unrestricted_file?" do
     
     context "stanford-only object level read-access, but world access to individual files" do
     
@@ -357,12 +381,12 @@ describe Dor::RightsAuth do
         @r = Dor::RightsAuth.parse rights
       end
     
-      it "returns true if the file has world read access" do
-        @r.should be_public_file('interviews2.doc')
+      it "returns true if the file has world unrestricted read access" do
+        @r.should be_public_unrestricted_file('interviews2.doc')
       end
     
       it "returns the value of object level #public? if the queried file is not listed" do
-        @r.should_not be_public_file('stanford-only-file.txt')
+        @r.should_not be_public_unrestricted_file('stanford-only-file.txt')
       end
           
     end
