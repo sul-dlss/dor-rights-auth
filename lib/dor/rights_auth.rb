@@ -1,7 +1,8 @@
 require 'nokogiri'
-#require 'helpers/cacheable'
+require 'time'
 
 module Dor
+  
   # The Individual Right 
   Rights = Struct.new(:value, :rule)
 
@@ -27,11 +28,19 @@ module Dor
   # end
 
   class RightsAuth
+    
+    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
 
-    attr_accessor :obj_lvl, :file
+    attr_accessor :obj_lvl, :file, :embargoed
 
     def initialize
       @file = {}
+    end
+    
+    # Returns true if the object is under embargo.
+    # @return [Boolean]
+    def embargoed?
+      @embargoed
     end
 
     # Returns true if the object is world readable AND has no rule attribute
@@ -154,8 +163,7 @@ module Dor
       [@file[file_name].agent[agent_name].value, @file[file_name].agent[agent_name].rule]
     end
 
-    # Fetch the rightsMetadata xml from the RightsMD service
-    #   Parse the xml and create a Dor::RightsAuth object
+    # Create a Dor::RightsAuth object from xml
     # @param [String] xml rightsMetadata xml that will be parsed to build a RightsAuth object
     # @return Dor::RightsAuth created after parsing rightsMetadata xml
     def RightsAuth.parse(xml)    
@@ -181,9 +189,9 @@ module Dor
     
       rights.obj_lvl.group = { :stanford => Rights.new }
     
-      if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[text() = 'stanford']"))
+      if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"))
         rights.obj_lvl.group[:stanford].value = true
-        rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[text() = 'stanford']/@rule")
+        rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
         rights.obj_lvl.group[:stanford].rule = rule.value if(rule)
       else
         rights.obj_lvl.group[:stanford].value = false
@@ -196,14 +204,22 @@ module Dor
         r.rule = node['rule']
         rights.obj_lvl.agent[node.content] = r
       end
+      
+      # Initialze embargo_status to false
+      rights.embargoed = false
+      embargo_node = doc.at_xpath("//rightsMetadata/access[@type='read']/machine/embargoReleaseDate")
+      if(embargo_node)
+        embargo_dt = Time.parse(embargo_node.content)
+        rights.embargoed = true if(embargo_dt > Time.now)
+      end
         
       access_with_files = doc.xpath( "//rightsMetadata/access[@type='read' and file]")
       access_with_files.each do |access_node|
         stanford_access = Rights.new  
         world_access = Rights.new
-        if access_node.at_xpath("machine/group[text()='stanford']")
+        if access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]")
           stanford_access.value = true
-          rule = access_node.at_xpath("machine/group[text()='stanford']/@rule")
+          rule = access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
           stanford_access.rule = rule.value if (rule)
         else
           stanford_access.value = false

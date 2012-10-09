@@ -21,6 +21,23 @@ describe Dor::RightsAuth do
       r.stanford_only_unrestricted?.should be_true
     end
     
+    it "returns true if capital S is used for 'Stanford'" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <group>Stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+
+      r = Dor::RightsAuth.parse rights
+      r.stanford_only_unrestricted?.should be_true
+    end
+    
     it "returns false if the object does not have stanford-only read access" do
       xml =<<-EOXML
       <objectType>
