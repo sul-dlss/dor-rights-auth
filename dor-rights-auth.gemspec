@@ -4,7 +4,7 @@ $:.unshift lib unless $:.include?(lib)
   
 Gem::Specification.new do |s|
   s.name        = "dor-rights-auth"
-  s.version     = "0.8.0"
+  s.version     = "1.0.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Willy Mene"]
   s.email       = ["wmene@stanford.edu"]
@@ -16,9 +16,8 @@ Gem::Specification.new do |s|
   # All dependencies are runtime dependencies, since this gem's "runtime" is
   # the dependent gem's development-time.
   s.add_dependency "nokogiri"
-  s.add_dependency "rest-client"
   
-  s.add_development_dependency "rspec", "< 2.0" # We're not ready to upgrade to rspec 2
+  s.add_development_dependency "rspec"
   s.add_development_dependency "ruby-debug"
   s.add_development_dependency "yard"
   s.add_development_dependency "lyberteam-gems-devel"
