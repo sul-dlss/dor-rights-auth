@@ -6,7 +6,6 @@ require 'rspec'
 require 'rspec/autorun'
 
 require 'dor/rights_auth'
-require 'ruby-debug'
 
 RSpec.configure do |conf|
   
