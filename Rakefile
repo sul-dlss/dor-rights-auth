@@ -26,7 +26,7 @@ task :clean do
   FileUtils.rm('coverage.data') if(File.exists? 'coverage.data')
 end
 
-task :default => [:rcov, :doc]
+task :default => [:spec]
 
 # To release the gem to the DLSS gemserver, run 'rake dlss_release'
 require 'dlss/rake/dlss_release'
