@@ -12,22 +12,9 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
+require "bundler/gem_tasks"
+
 require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-#  spec.libs << 'lib' << 'spec'
-  spec.pattern = 'spec/**/*_spec.rb', 'test/**/*.rb'
-end
-
-task :rcov => ["functional"] do
-end
-
-task :clean do
-  puts 'Cleaning old coverage.data'
-  FileUtils.rm('coverage.data') if(File.exists? 'coverage.data')
-end
+RSpec::Core::RakeTask.new(:spec)
 
 task :default => [:spec]
-
-# To release the gem to the DLSS gemserver, run 'rake dlss_release'
-require 'dlss/rake/dlss_release'
-Dlss::Release.new

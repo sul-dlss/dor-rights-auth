@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
   # the dependent gem's development-time.
   s.add_dependency "nokogiri"
   
+  s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
   s.add_development_dependency "yard"
-  s.add_development_dependency "lyberteam-gems-devel"
  
   s.files        = Dir.glob("lib/**/*")
   s.require_path = 'lib'
