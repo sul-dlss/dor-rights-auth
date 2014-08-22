@@ -20,7 +20,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.should be_embargoed
+      expect(r).to be_embargoed
     end
     
     it "returns false if there is no embargo date" do
@@ -37,7 +37,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.should_not be_embargoed
+      expect(r).not_to be_embargoed
     end
     
     it "returns false if the embargo date has passed" do
@@ -56,7 +56,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.should_not be_embargoed
+      expect(r).not_to be_embargoed
     end
     
   end
