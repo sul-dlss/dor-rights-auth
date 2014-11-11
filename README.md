@@ -1,8 +1,9 @@
 
-== DOR Rights Auth
+## DOR Rights Auth
 
 Creates objects with the following structure after parsing rightsMetadata XML
 
+```ruby
 # Rights for an object or File
 class EntityRights
   @world = #Rights
@@ -24,3 +25,4 @@ class Dor::RightsAuth
     'file2' => EntityRights
   }
 end
+```
