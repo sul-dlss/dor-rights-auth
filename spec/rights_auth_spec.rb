@@ -18,7 +18,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.stanford_only_unrestricted?.should be_true
+      expect(r).to be_stanford_only_unrestricted
     end
     
     it "returns true if capital S is used for 'Stanford'" do
@@ -35,7 +35,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.stanford_only_unrestricted?.should be_true
+      expect(r).to be_stanford_only_unrestricted
     end
     
     it "returns false if the object does not have stanford-only read access" do
@@ -52,7 +52,7 @@ describe Dor::RightsAuth do
       EOXML
       
       rights = Dor::RightsAuth.parse xml
-      rights.stanford_only_unrestricted?.should be_false
+      expect(rights).to_not be_stanford_only_unrestricted
     end
     
     it "returns false if the object has stanford-only read access with a rule attribute" do
@@ -69,7 +69,7 @@ describe Dor::RightsAuth do
       EOXML
 
       r = Dor::RightsAuth.parse rights
-      r.stanford_only_unrestricted?.should be_false
+      expect(r).to_not be_stanford_only_unrestricted
     end
     
     it "returns false when there is file-level stanford-only access but object-level world access" do
@@ -93,7 +93,7 @@ describe Dor::RightsAuth do
       EOXML
       
       rights = Dor::RightsAuth.parse xml
-      rights.should_not be_stanford_only_unrestricted
+      expect(rights).not_to be_stanford_only_unrestricted
     end
   end
       
@@ -113,7 +113,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should be_public_unrestricted
+      expect(r).to be_public_unrestricted
     end
     
     it "returns false if there is no machine readable world visibility" do
@@ -130,7 +130,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public_unrestricted
+      expect(r).not_to be_public_unrestricted
     end
     
     it "returns false if there is no machine/world access WITHOUT a rule attribute" do
@@ -147,7 +147,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public_unrestricted
+      expect(r).not_to be_public_unrestricted
     end
     
     it "returns false if the rights metadata does not contain a read block" do
@@ -164,7 +164,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public_unrestricted
+      expect(r).not_to be_public_unrestricted
     end
     
     it "returns false when there is file-level world access but object-level stanford-only access" do
@@ -188,7 +188,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_public_unrestricted
+      expect(r).not_to be_public_unrestricted
     end
     
   end
@@ -209,7 +209,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should be_readable
+      expect(r).to be_readable
     end
     
     it "returns false if the rights metadata does not contain a read block" do
@@ -226,7 +226,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_readable
+      expect(r).not_to be_readable
     end
     
     it "returns false if there's only a read access block with files, but no object level read access" do
@@ -250,7 +250,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.should_not be_readable
+      expect(r).not_to be_readable
     end
     
   end
@@ -270,7 +270,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.allowed_read_agent?('app-name').should be
+      expect(r.allowed_read_agent?('app-name')).to be
     end
     
     it "handles more than one agent" do
@@ -288,7 +288,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.allowed_read_agent?('app2').should be
+      expect(r.allowed_read_agent?('app2')).to be
     end
     
     it "returns false if the passed in user is NOT an allowed read agent" do
@@ -305,7 +305,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.allowed_read_agent?('another-app-name').should_not be
+      expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
     
     it "returns false if there is no read agent in rightsMetadata" do
@@ -322,7 +322,7 @@ describe Dor::RightsAuth do
       EOXML
       
       r = Dor::RightsAuth.parse rights
-      r.allowed_read_agent?('another-app-name').should_not be
+      expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
     
   end
@@ -359,15 +359,15 @@ describe Dor::RightsAuth do
     end
     
     it "returns true if a file has stanford-only read access" do
-       @r.should be_stanford_only_unrestricted_file('interviews1.doc')
+       expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
     end
     
     it "returns the value of object level #stanford_only_unrestricted? if the queried file is not listed " do
-      @r.should_not be_stanford_only_unrestricted_file('object-level-rights.xml')
+      expect(@r).not_to be_stanford_only_unrestricted_file('object-level-rights.xml')
     end
     
     it "returns false if a file is stanford-only AND has a rule attribute" do
-      @r.should_not be_stanford_only_unrestricted_file('su-only-no-download.doc')
+      expect(@r).not_to be_stanford_only_unrestricted_file('su-only-no-download.doc')
     end
   end
   
@@ -399,11 +399,11 @@ describe Dor::RightsAuth do
       end
     
       it "returns true if the file has world unrestricted read access" do
-        @r.should be_public_unrestricted_file('interviews2.doc')
+        expect(@r).to be_public_unrestricted_file('interviews2.doc')
       end
     
       it "returns the value of object level #public? if the queried file is not listed" do
-        @r.should_not be_public_unrestricted_file('stanford-only-file.txt')
+        expect(@r).not_to be_public_unrestricted_file('stanford-only-file.txt')
       end
           
     end

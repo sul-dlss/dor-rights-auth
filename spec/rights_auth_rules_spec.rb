@@ -19,8 +19,8 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       
       world, rule = r.world_rights
-      world.should be
-      rule.should == 'no-download'
+      expect(world).to be
+      expect(rule).to eq('no-download')
     end
   end
   
@@ -41,8 +41,8 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       
       su_only, rule = r.stanford_only_rights
-      su_only.should be
-      rule.should == 'no-download'
+      expect(su_only).to be
+      expect(rule).to eq('no-download')
     end
   end
   
@@ -63,14 +63,14 @@ describe Dor::RightsAuth do
       @r = Dor::RightsAuth.parse rights
       
       su_only, rule = @r.stanford_only_rights
-      su_only.should be
-      rule.should be_nil
-      @r.should be_stanford_only_unrestricted
+      expect(su_only).to be
+      expect(rule).to be_nil
+      expect(@r).to be_stanford_only_unrestricted
       
       world_val, world_rule = @r.world_rights
-      world_val.should be
-      world_rule.should == 'no-download'
-      @r.should_not be_world_unrestricted
+      expect(world_val).to be
+      expect(world_rule).to eq('no-download')
+      expect(@r).not_to be_world_unrestricted
     end
   end
   
@@ -101,22 +101,22 @@ describe Dor::RightsAuth do
     
     it "returns the value and rule attribute for a single file" do
       world, rule = @r.world_rights_for_file('interview.doc')
-      world.should == true
-      rule.should == 'no-download'
+      expect(world).to eq(true)
+      expect(rule).to eq('no-download')
       
       su, su_rule = @r.stanford_only_rights_for_file('interview.doc')
-      su.should == true
-      su_rule.should be_nil
+      expect(su).to eq(true)
+      expect(su_rule).to be_nil
     end
     
     it "defaults to object level rights when the questioned file does not have listed rights" do
       world, rule = @r.world_rights_for_file('object.doc')
-      world.should == true
-      rule.should == nil
+      expect(world).to eq(true)
+      expect(rule).to eq(nil)
       
       su, su_rule = @r.stanford_only_rights_for_file('object.doc')
-      su.should == false
-      su_rule.should be_nil
+      expect(su).to eq(false)
+      expect(su_rule).to be_nil
     end
     
   end
@@ -151,27 +151,27 @@ describe Dor::RightsAuth do
     
     it "returns agent rights for a given file" do
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp1')
-      agent_val.should == true
-      rule.should == nil
+      expect(agent_val).to eq(true)
+      expect(rule).to eq(nil)
       
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp2')
-      agent_val.should == true
-      rule.should == 'somerule'
+      expect(agent_val).to eq(true)
+      expect(rule).to eq('somerule')
       
       # if agent not listed for file, return false
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'unauthorized-app')
-      agent_val.should == false
-      rule.should == nil
+      expect(agent_val).to eq(false)
+      expect(rule).to eq(nil)
     end
     
     it "returns object level rights if the file does not have listed rights" do
        agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
-       agent_val.should == true
-       rule.should == 'objlevel'
+       expect(agent_val).to eq(true)
+       expect(rule).to eq('objlevel')
   
        agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'someapp2')
-       agent_val.should == false
-       rule.should == nil
+       expect(agent_val).to eq(false)
+       expect(rule).to eq(nil)
     end
     
   end
