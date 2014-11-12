@@ -54,7 +54,7 @@ describe Dor::RightsAuth do
           <access type="read">
             <machine>
               <group>stanford</group>
-              <world rule="no-download">stanford</world>
+              <world rule="no-download"/>
             </machine>
           </access>
         </rightsMetadata>
