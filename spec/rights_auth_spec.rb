@@ -254,7 +254,100 @@ describe Dor::RightsAuth do
     end
     
   end
-  
+
+  describe "dark" do
+    it "handles explicit none element" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover">
+            <machine>
+              <none/>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+
+      world, rule1 = r.world_rights
+      stan,  rule2 = r.stanford_only_rights
+      expect(world).not_to be
+      expect(stan ).not_to be
+      expect(rule1).to eq(nil)
+      expect(rule2).to eq(nil)
+      expect(r).not_to be_readable
+      expect(r).not_to be_public_unrestricted_file('file.doc')
+      expect(r).not_to be_public_unrestricted
+    end
+  end
+
+  describe "empty" do
+    it "rightsMetadata" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+
+      world, rule1 = r.world_rights
+      stan,  rule2 = r.stanford_only_rights
+      expect(world).not_to be
+      expect(stan ).not_to be
+      expect(rule1).to eq(nil)
+      expect(rule2).to eq(nil)
+      expect(r).not_to be_readable
+      expect(r).not_to be_public_unrestricted_file('file.doc')
+      expect(r).not_to be_public_unrestricted
+    end
+    it "access" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover">
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+
+      world, rule1 = r.world_rights
+      stan,  rule2 = r.stanford_only_rights
+      expect(world).not_to be
+      expect(stan ).not_to be
+      expect(rule1).to eq(nil)
+      expect(rule2).to eq(nil)
+      expect(r).not_to be_readable
+      expect(r).not_to be_public_unrestricted_file('file.doc')
+      expect(r).not_to be_public_unrestricted
+    end
+    it "machine" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover">
+            <machine>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+
+      world, rule1 = r.world_rights
+      stan,  rule2 = r.stanford_only_rights
+      expect(world).not_to be
+      expect(stan ).not_to be
+      expect(rule1).to eq(nil)
+      expect(rule2).to eq(nil)
+      expect(r).not_to be_readable
+      expect(r).not_to be_public_unrestricted_file('file.doc')
+      expect(r).not_to be_public_unrestricted
+    end
+  end
+
   describe "#allowed_read_agent?" do
     it "returns true if the passed in user is an allowed read agent" do
       rights =<<-EOXML
