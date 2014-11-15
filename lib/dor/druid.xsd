@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="druidstring">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z]{2}[0-9]{3}[a-zA-Z]{2}[0-9]{4}"/>
+      <xs:whiteSpace value="collapse"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
