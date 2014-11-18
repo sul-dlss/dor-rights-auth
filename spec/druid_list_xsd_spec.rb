@@ -42,6 +42,7 @@ describe "XSD with <include> subcomponent" do
         'dy555zk94255' => 'too long',
         'tf943n!9312'  => 'illegal character',
         'wj852r5z419'  => 'wrong positions',
+        'wj852 5z419'  => 'internal whitespace',
     }.each { |k,v|
         it "catches bad value (#{v})" do
           xmlblock = "<druidlist><druid>#{k}</druid></druidlist>"
