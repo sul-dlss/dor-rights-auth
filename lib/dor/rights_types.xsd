@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="rights_basics.xsd"/>
+
+  <xs:complexType name="copyrightusetype">
+    <!--
+    TODO: consider get rid of human elements.  DESTROY ALL HUMANS!
+    TODO: use full URIs to designate rights values.
+    -->
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="human"   type="typeoptionaltype"/>
+        <xs:element name="machine" type="collapsedstringrequiredtype"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+<!-- the "machine" elements in "use" and "copyright"(?) are different than the others (no child elements) -->
+  <xs:complexType name="machinetype"><!-- For the deeper non-"use" machine elements -->
+    <xs:choice>
+      <xs:element name="none"  type="xs:string"/>
+      <xs:element name="world" type="xs:string"/>
+    </xs:choice>
+    <xs:attribute name="type" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="maybehuman">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="human" type="typeoptionaltype"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="allornothing">
+    <xs:choice>
+      <xs:element name="none"  type="trueemptytype"/>
+      <xs:element name="world" type="trueemptytype"/>
+    </xs:choice>
+  </xs:complexType>
+
+<!--
+  <xs:complexType name="meatyoptions">
+    <xs:complexContent>
+    <xs:element name="world"  type="typerequiredtype" minOccurs="0" maxOccurs="1"/>
+    <xs:element name="group"  type="typeoptionaltype" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:element name="person" type="typeoptionaltype" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:element name="agent"  type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:element name="embargoReleaseDate" type="xs:date" minOccurs="0"/>
+    </xs:complexContent>
+  </xs:complexType>
+-->
+
+</xs:schema>

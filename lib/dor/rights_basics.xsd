@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="trueemptytype">
+    <xs:restriction base="xs:string">
+      <xs:length value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="accesstypeattribute">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="read" />
+      <xs:enumeration value="discover" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="accesstypeattributeread">
+    <xs:restriction base="accesstypeattribute">
+      <xs:enumeration value="read" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="accesstypeattributediscover">
+    <xs:restriction base="accesstypeattribute">
+      <xs:enumeration value="discover" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="collapsedstring">
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="collapse"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ruleoptionaltype">
+    <xs:attribute name="rule" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="rulerequiredtype">
+    <xs:attribute name="rule" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="typeoptionaltype">
+    <xs:attribute name="type" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="typerequiredtype">
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="collapsedstringoptionaltype">
+    <xs:simpleContent>
+      <xs:extension base="collapsedstring">
+        <xs:attribute name="type" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="collapsedstringrequiredtype">
+    <xs:simpleContent>
+      <xs:extension base="collapsedstring">
+        <xs:attribute name="type" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+</xs:schema>
