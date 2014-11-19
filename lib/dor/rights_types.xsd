@@ -39,14 +39,58 @@
     </xs:choice>
   </xs:complexType>
 
-<!--
   <xs:complexType name="meatyoptions">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element name="none"  type="trueemptytype"/>
+        <xs:element name="world" type="trueemptytype"/>
+        <xs:sequence> <!-- if one of the above, then NONE of the below -->
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="world"   type="rulerequiredtype"/>
+            <xs:element name="group"   type="ruleoptionaltype"/>
+            <xs:element name="human"   type="typeoptionaltype"/>
+            <xs:element name="person"  type="typerequiredtype"/>
+            <xs:element name="agent"   type="typeoptionaltype"/>
+            <xs:element name="embargoReleaseDate" type="xs:date"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="readtype">
     <xs:complexContent>
-    <xs:element name="world"  type="typerequiredtype" minOccurs="0" maxOccurs="1"/>
-    <xs:element name="group"  type="typeoptionaltype" minOccurs="0" maxOccurs="unbounded"/>
-    <xs:element name="person" type="typeoptionaltype" minOccurs="0" maxOccurs="unbounded"/>
-    <xs:element name="agent"  type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-    <xs:element name="embargoReleaseDate" type="xs:date" minOccurs="0"/>
+      <xs:extension base="meatyoptions">
+        <xs:attribute name="type" type="accesstypeattributeread" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="discovertype">
+    <xs:complexContent>
+      <xs:extension base="meatyoptions">
+        <xs:attribute name="type" type="accesstypeattributediscover" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="readwithfile">
+    <xs:complexContent>
+      <xs:extension base="readtype">
+        <xs:sequence>
+          <xs:element name="file" type="accesstypeattributeread" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--
+  <xs:complexType name="discovertype">
+    <xs:complexContent>
+      <xs:extension base="cyborgtype">
+        <xs:element name="machine" type="xs:string" minOccurs="1"/>
+      </xs:extension>
+      <xs:attribute name="type" type="accesstypeattributediscover" use="required"/>
     </xs:complexContent>
   </xs:complexType>
 -->

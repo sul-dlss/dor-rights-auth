@@ -5,7 +5,7 @@ require 'nokogiri'
 describe "XSD with subcomponent" do
   describe "validate" do
 
-    ['rights_basics', 'rights_types', 'humanlist'].each { |f|
+    ['rights_basics', 'rights_types', 'humanlist', 'rights'].each { |f|
       path = File.expand_path(File.dirname(__FILE__) + "/../lib/dor/#{f}.xsd")
       it "XSD syntax for #{f}.xsd" do
         schema = Nokogiri::XML::Schema(File.open(path))

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="rights_types.xsd"/>
+
+  <xs:element name="rightsMetadata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="2" maxOccurs="unbounded">
+          <!-- without forced order, we cannot guarantee required elements without fully enumerating 120 combinations!-->
+          <xs:element name="access" type="discovertype"/>
+          <xs:element name="access" type="readtype"/>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="access"    type="readwithfile"/>
+            <xs:element name="copyright" type="copyrightusetype"/>
+            <xs:element name="use"       type="copyrightusetype"/>
+          </xs:choice>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="objectId" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
