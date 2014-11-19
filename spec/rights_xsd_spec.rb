@@ -6,14 +6,14 @@ describe "XSD with subcomponent" do
   describe "validate" do
 
     ['rights_basics', 'rights_types', 'humanlist', 'rights'].each { |f|
-      path = File.expand_path(File.dirname(__FILE__) + "/../lib/dor/#{f}.xsd")
+      path = File.expand_path(File.dirname(__FILE__) + "/../lib/dor/xsd/#{f}.xsd")
       it "XSD syntax for #{f}.xsd" do
         schema = Nokogiri::XML::Schema(File.open(path))
         expect(schema).to be
       end
     }
 
-    path = File.expand_path(File.dirname(__FILE__) + '/../lib/dor/rights_types.xsd')
+    path = File.expand_path(File.dirname(__FILE__) + '/../lib/dor/xsd/rights_types.xsd')
 #   schema = Nokogiri::XML::Schema(File.open(path))
 
 #   it "human" do

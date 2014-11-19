@@ -5,7 +5,7 @@ require 'nokogiri'
 describe "XSD with <include> subcomponent" do
   describe "validate" do
     
-    path = File.expand_path(File.dirname(__FILE__) + '/../lib/dor/druidlist.xsd')
+    path = File.expand_path(File.dirname(__FILE__) + '/../lib/dor/xsd/druidlist.xsd')
     druidlist = Nokogiri::XML::Schema(File.open(path))
 
     it "succeeds for conformant data" do

@@ -1,0 +1,39 @@
+<rightsMetadata objectId="druid">
+  <copyright>
+    <human type="copyright">(c) 2009 by Jasper Wilcox. All rights reserved.</human>
+  </copyright>
+  <access type="discover"> <!-- This covers core metadata -- identity, descriptive, content and rights -->
+    <machine>
+      <world/>
+    </machine>
+  </access>
+  <access type="read">  <!-- applies to file contents of an object, e.g., viewing an image online or downloading a file -->
+    <human>This document is available only to the Stanford faculty, staff and student community</human>
+    <machine>
+      <world/>            <!-- either all (world) or nothing (none) would stand alone (apart from embargo date) -->
+      <none/>             <!-- else access would be some combination of the following -->
+      <policy>druid:hx551yt4502</policy>
+      <agent>application_id</agent>
+      <person type="sunetid">user_id</person>
+      <group>stanford</group>  <!-- special form for interpretation as the stanford:stanford privgroup -->
+      <group type="suWorkgroup">stanford:faculty</group>
+      <group type="suWorkgroup">stanford:student</group>
+      <embargoReleaseDate>2011-03-01</embargoReleaseDate>   <!-- informational for PURL use; set via embargoMetadata -->
+    </machine>
+  </access>
+  <access type="read">  <!-- alternate common read form -->
+    <machine>
+      <group>stanford</group>
+      <world rule="no-download"/>
+    </machine>
+  </access>
+  <access type="read">  <!-- file-specific rules -->
+    <file id="restricted.doc"/>
+    <group>stanford</group>
+  </access>
+  <use>
+    <human type="useAndReproduction">You may re-distribute this object, unaltered, with attribution to the author.</human>
+    <human type="creativeCommons">CC Attribution Non-Commercial license</human>
+    <machine type="creativeCommons">by-nc</machine>
+  </use>
+</rightsMetadata>
