@@ -2,8 +2,8 @@ require 'nokogiri'
 require 'time'
 
 module Dor
-  
-  # The Individual Right 
+
+  # The Individual Right
   Rights = Struct.new(:value, :rule)
 
   # Rights for an object or File
@@ -68,7 +68,7 @@ module Dor
       return false unless @obj_lvl.agent.has_key? agent_name
       @obj_lvl.agent[agent_name].value && @obj_lvl.agent[agent_name].rule.nil?
     end
-    
+
     alias_method :allowed_read_agent?, :agent_unrestricted?
 
     # Returns true if the file is stanford-only readable AND has no rule attribute
@@ -78,23 +78,23 @@ module Dor
     # @return [Boolean]
     def stanford_only_unrestricted_file?(file_name)
       return stanford_only_unrestricted? if( @file[file_name].nil? || @file[file_name].group[:stanford].nil? )
-    
+
       @file[file_name].group[:stanford].value && @file[file_name].group[:stanford].rule.nil?
     end
 
     # Returns true if the file is world readable AND has no rule attribute
-    #   If world rights do not exist for this file, then object level rights are returned 
+    #   If world rights do not exist for this file, then object level rights are returned
     # @see #world_unrestricted?
     # @param [String] file_name Name of file that is tested for world rights
     # @return [Boolean]
     def world_unrestricted_file?(file_name)
       return world_unrestricted? if( @file[file_name].nil? || @file[file_name].world.nil? )
-    
+
       @file[file_name].world.value && @file[file_name].world.rule.nil?
     end
 
     alias_method :public_unrestricted_file?, :world_unrestricted_file?
-    
+
     # Returns whether an object-level world node exists, and the value of its rule attribute
     # @return [Array<(Boolean, String)>] First value: existance of node. Second Value: rule attribute, nil otherwise
     # @example Using multiple variable assignment to read both array elements
@@ -110,7 +110,7 @@ module Dor
     def stanford_only_rights
       [@obj_lvl.group[:stanford].value, @obj_lvl.group[:stanford].rule]
     end
-    
+
     # Returns whether an object-level agent node exists for the passed in agent, and the value of its rule attribute
     # @param [String] agent_name name of the app or thing that is tested for access
     # @return (see #world_rights)
@@ -121,7 +121,7 @@ module Dor
       return [false, nil] if(@obj_lvl.agent[agent_name].nil?)
       [@obj_lvl.agent[agent_name].value, @obj_lvl.agent[agent_name].rule]
     end
-    
+
     # Returns whether a file-level world node exists, and the value of its rule attribute
     #  If a world node does not exist for this file, then object-level world rights are returned
     # @see #world_rights
@@ -131,10 +131,10 @@ module Dor
     #   world_exists, world_rule = rights.world_rights_for_file('somefile')
     def world_rights_for_file(file_name)
       return world_rights if( @file[file_name].nil? || @file[file_name].world.nil? )
-    
+
       [@file[file_name].world.value, @file[file_name].world.rule]
     end
-    
+
     # Returns whether a file-level group/stanford node exists, and the value of its rule attribute
     #    If a group/stanford node does not exist for this file, then object-level group/stanford rights are returned
     # @see #stanford_only_rights
@@ -144,10 +144,10 @@ module Dor
     #   su_only_exists, su_only_rule = rights.stanford_only_rights_for_file('somefile')
     def stanford_only_rights_for_file(file_name)
       return stanford_only_rights if( @file[file_name].nil? || @file[file_name].group[:stanford].nil?)
-    
+
       [@file[file_name].group[:stanford].value, @file[file_name].group[:stanford].rule]
     end
-    
+
     # Returns whether a file-level agent-node exists, and the value of its rule attribute
     #    If an agent-node does not exist for this file, then object-level agent rights are returned
     # @param [String] file_name name of the file being tested
@@ -204,7 +204,7 @@ module Dor
         r.rule = node['rule']
         rights.obj_lvl.agent[node.content] = r
       end
-      
+
       # Initialze embargo_status to false
       rights.embargoed = false
       embargo_node = doc.at_xpath("//rightsMetadata/access[@type='read']/machine/embargoReleaseDate")
@@ -224,7 +224,7 @@ module Dor
         else
           stanford_access.value = false
         end
-      
+
         if access_node.at_xpath("machine/world")
           world_access.value = true
           rule = access_node.at_xpath("machine/world/@rule")
@@ -232,7 +232,7 @@ module Dor
         else
           world_access.value = false
         end
-        
+
         file_agents = {}
         access_node.xpath("machine/agent").each do |node|
           r = Rights.new
@@ -240,20 +240,20 @@ module Dor
           r.rule = node['rule']
           file_agents[node.content] = r
         end
-      
+
         access_node.xpath('file').each do |f|
           file_rights = EntityRights.new
           file_rights.world = world_access
           file_rights.group = { :stanford => stanford_access }
           file_rights.agent = file_agents
-          
+
           rights.file[f.content] = file_rights
         end
       end
 
       rights
     end
-    
+
   end
 end
 
