@@ -238,7 +238,6 @@ module Dor
         counts = Hash.new(0)
         filemachines.each { |filemachine|
           filemachine.element_children.each { |node|
-            puts node.name
             counts[node.name] += 1
           }
         }

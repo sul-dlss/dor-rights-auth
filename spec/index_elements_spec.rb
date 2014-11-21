@@ -24,7 +24,6 @@ describe Dor::RightsAuth do
       expect(i[:primary]).to eq "dark"
       expect(i[:terms]  ).to include("has_rule", "world|no-download")
       expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
-      puts i
     end
 
     it "World-discover world-read single rule" do
@@ -138,7 +137,6 @@ describe Dor::RightsAuth do
 
     it "single file" do
       i = r.index_elements
-      puts i
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq "world"
@@ -192,7 +190,6 @@ describe Dor::RightsAuth do
 
     it "handles agent rights at multiple levels" do
       i = r.index_elements
-      puts i
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq "world"
