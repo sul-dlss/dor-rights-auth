@@ -26,6 +26,34 @@ describe Dor::RightsAuth do
       expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
     end
 
+    it "Double dark double none" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <none/>
+            </machine>
+          </access>
+          <access type="discover">
+            <machine>
+              <none/>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse(rights, true)
+
+      i = r.index_elements
+      puts i
+      expect(i).to be
+      expect(i[:errors] ).to be_empty
+      expect(i[:primary]).to eq "dark"
+      expect(i[:terms]  ).to include("none_read", "none_discover")
+      expect(i[:terms]  ).not_to include("has_rule", "world_read", "world_discover")
+    end
+
     it "World-discover world-read single rule" do
       rights =<<-EOXML
       <objectType>
