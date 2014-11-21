@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'time'
 
+# We handle the ugly stuff, so you don't have to.
+
 module Dor
 
   # The Individual Right
@@ -28,15 +30,18 @@ module Dor
   # end
 
   class RightsAuth
-    
+
     CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
 
-    attr_accessor :obj_lvl, :file, :embargoed
+    attr_accessor :obj_lvl, :file, :embargoed, :index_elements
+
+    # note: index_elements is only valid for the xml as parsed, not after subsequent manipulation
 
     def initialize
       @file = {}
+      @index_elements = {}
     end
-    
+
     # Returns true if the object is under embargo.
     # @return [Boolean]
     def embargoed?
@@ -157,38 +162,164 @@ module Dor
     #   agent_exists, agent_rule = rights.agent_rights_for_file('filex', 'someapp')
     def agent_rights_for_file(file_name, agent_name)
       return agent_rights(agent_name) if( @file[file_name].nil?) # look at object level agent rights if the file-name is not stored
-      
+
       return [false, nil] if( @file[file_name].agent[agent_name].nil?) # file rules exist, but not for this agent
-    
+
       [@file[file_name].agent[agent_name].value, @file[file_name].agent[agent_name].rule]
     end
+
+    # Check formedness of rightsMetadata -- to be replaced with XSD once formalized, one fine day
+    # @param [Nokogiri::XML] the rightsMetadata document
+    # @return [Array]        list of things that are wrong with it
+    def RightsAuth.validate_lite(doc)
+      if (doc.nil? || doc.at_xpath("//rightsMetadata").nil?)
+          return ["no_rightsMetadata"]
+      end
+      errors = []
+      maindiscover = doc.at_xpath("//rightsMetadata/access[@type='discover' and not(file)]")
+      mainread     = doc.at_xpath("//rightsMetadata/access[@type='read'     and not(file)]")
+
+      if maindiscover.nil?
+        errors.push "no_discover_access"
+      elsif maindiscover.at_xpath("./machine").nil?
+        errors.push "no_discover_machine"
+      elsif (maindiscover.at_xpath("./machine/world[not(@rule)]").nil? && maindiscover.at_xpath("./machine/none").nil?)
+        errors.push "discover_machine_unrecognized"
+      end
+      if mainread.nil?
+        errors.push "no_read_access"
+      elsif mainread.at_xpath("./machine").nil?
+        errors.push "no_read_machine"
+      else
+        ## TODO: deeper read validation?
+      end
+
+      errors
+    end
+
+    # Assemble various characterizing terms for index from XML
+    # @param [Nokogiri::XML] the rightsMetadata document
+    # @return [Array] Strings of interest to the Solr index
+    def RightsAuth.extract_index_terms(doc)
+      terms = []
+      machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
+      return terms if machine.nil?
+
+      terms.push "has_group_rights" if machine.at_xpath("./group")
+      terms.push "has_rule" if machine.at_xpath(".//@rule")
+
+      if (machine.at_xpath("./group[not(@rule) and #{CONTAINS_STANFORD_XPATH}]"))
+        terms.push "group|stanford"
+      elsif (machine.at_xpath("./group[@rule and #{CONTAINS_STANFORD_XPATH}]"))
+        terms.push "group|stanford_with_rule"
+      elsif (machine.at_xpath("./group"))
+        terms.push "group|#{machine.at_xpath("./group").value.downcase}"
+      end
+
+      if (machine.at_xpath("./none"))
+        terms.push "none_read"
+      elsif (machine.at_xpath("./world[not(@rule)]"))
+        terms.push "world_read"
+      elsif (machine.at_xpath("./world/@rule"))
+        terms.push "world|#{machine.at_xpath("./world/@rule").value.downcase}"
+      end
+      terms.push  "none_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
+      terms.push "world_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
+
+      # now some statistical generation
+      names = machine.element_children.collect { |node| node.name }
+      kidcount = names.each_with_object(Hash.new(0)){ |word,counts| counts[word] += 1 }
+      countphrase = kidcount.sort.collect{|k,v| "#{k}#{v}"}.join("|")
+      terms.push "profile:" + countphrase unless countphrase.empty?
+
+      filemachines = doc.xpath("//rightsMetadata/access[@type='read' and file]/machine")
+      unless filemachines.empty?
+        terms.push "has_file_rights", "file_rights_count|#{filemachines.count}"
+        counts = Hash.new(0)
+        filemachines.each { |filemachine|
+          filemachine.element_children.each { |node|
+            puts node.name
+            counts[node.name] += 1
+          }
+        }
+        counts.each { |k,v|
+          terms.push "file_has_#{k}", "file_rights_for_#{k}|#{v}"
+        }
+      end
+
+      terms
+    end
+
+    # Give the index what it needs
+    # @param [Nokogiri::XML] the rightsMetadata document
+    # @return [Hash] Strings of interest to the Solr index, including:
+    # {
+    #   :primary => '...',   # string of foremost rights category, if determinable
+    #   :errors  => [...],   # known error cases
+    #   :terms   => [...]    # array of non-error characterizations and stats strings
+    # }
+    def RightsAuth.extract_access_rights(doc)
+      errors = validate_lite(doc)
+      stuff = {
+        :primary => nil,
+        :errors  => errors,
+        :terms   => []
+      }
+
+      if (errors.include? "no_rightsMetadata")
+        stuff[:primary] = 'dark'
+        return stuff    # short circuit if no metadata -- no point going on
+      end
+
+      stuff[:terms] = extract_index_terms(doc)
+
+      if (stuff[:terms].include?("none_discover"))
+        stuff[:primary] = 'dark'
+      elsif (errors.include?("no_discover_access") || errors.include?("no_discover_machine"))
+        stuff[:primary] = 'dark'
+      elsif (errors.include?("no_read_machine") || stuff[:terms].include?("none_read"))
+        stuff[:primary] = 'citation'
+      elsif (stuff[:terms].include? "world_read")
+        stuff[:primary] = 'world'
+      elsif (stuff[:terms].include? "group|stanford")
+        stuff[:primary] = 'stanford'
+      elsif (stuff[:terms].include? "has_rule")
+        stuff[:primary] = 'complicated'
+      end
+      stuff
+    end
+
 
     # Create a Dor::RightsAuth object from xml
     # @param [String] xml rightsMetadata xml that will be parsed to build a RightsAuth object
     # @return Dor::RightsAuth created after parsing rightsMetadata xml
-    def RightsAuth.parse(xml)    
+    def RightsAuth.parse(xml, forindex=false)
       rights = Dor::RightsAuth.new
       rights.obj_lvl = EntityRights.new
       rights.obj_lvl.world = Rights.new
-    
+
       doc = Nokogiri::XML(xml)
       if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world"))
         rights.obj_lvl.world.value = true
         rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world/@rule")
-        rights.obj_lvl.world.rule = rule.value if(rule)        
+        rights.obj_lvl.world.rule = rule.value if(rule)
       else
-       rights.obj_lvl.world.value = false
+        rights.obj_lvl.world.value = false
       end
 
-      # TODO do we still need this??????    
+      # TODO do we still need this??????
       # if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]"))
       #   rights[:readable] = true
       # else
       #   rights[:readable] = false
       # end
-    
+
       rights.obj_lvl.group = { :stanford => Rights.new }
-    
+
+      if (forindex)
+        rights.index_elements = extract_access_rights(doc)
+      end
+
       if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"))
         rights.obj_lvl.group[:stanford].value = true
         rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
@@ -212,11 +343,11 @@ module Dor
         embargo_dt = Time.parse(embargo_node.content)
         rights.embargoed = true if(embargo_dt > Time.now)
       end
-        
-      access_with_files = doc.xpath( "//rightsMetadata/access[@type='read' and file]")
+
+      access_with_files = doc.xpath("//rightsMetadata/access[@type='read' and file]")
       access_with_files.each do |access_node|
-        stanford_access = Rights.new  
-        world_access = Rights.new
+        stanford_access = Rights.new
+        world_access    = Rights.new
         if access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]")
           stanford_access.value = true
           rule = access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
