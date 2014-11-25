@@ -13,8 +13,6 @@ Gem::Specification.new do |s|
  
   s.required_rubygems_version = ">= 1.3.6"
   
-  # All dependencies are runtime dependencies, since this gem's "runtime" is
-  # the dependent gem's development-time.
   s.add_dependency "nokogiri"
   
   s.add_development_dependency "rake"
