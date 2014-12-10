@@ -180,14 +180,14 @@ module Dor
       mainread     = doc.at_xpath("//rightsMetadata/access[@type='read'     and not(file)]")
 
       if maindiscover.nil?
-        errors.push "no_discover_access"
+        errors.push "no_discover_access", "no_discover_machine"
       elsif maindiscover.at_xpath("./machine").nil?
         errors.push "no_discover_machine"
       elsif (maindiscover.at_xpath("./machine/world[not(@rule)]").nil? && maindiscover.at_xpath("./machine/none").nil?)
         errors.push "discover_machine_unrecognized"
       end
       if mainread.nil?
-        errors.push "no_read_access"
+        errors.push "no_read_access", "no_read_machine"
       elsif mainread.at_xpath("./machine").nil?
         errors.push "no_read_machine"
       else
@@ -203,6 +203,8 @@ module Dor
     def RightsAuth.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
+      terms.push  "none_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
+      terms.push "world_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
       return terms if machine.nil?
 
       terms.push "has_group_rights" if machine.at_xpath("./group")
@@ -223,8 +225,6 @@ module Dor
       elsif (machine.at_xpath("./world/@rule"))
         terms.push "world|#{machine.at_xpath("./world/@rule").value.downcase}"
       end
-      terms.push  "none_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
-      terms.push "world_discover" if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
 
       # now some statistical generation
       names = machine.element_children.collect { |node| node.name }

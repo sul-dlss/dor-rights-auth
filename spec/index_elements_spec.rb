@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Dor::RightsAuth do
 
-  describe "#world_rights" do
+  describe "#index_elements catches errors" do
 
     it "Missing-discover world-read single rule" do
       rights =<<-EOXML
@@ -26,6 +26,72 @@ describe Dor::RightsAuth do
       expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
     end
 
+    it "Missing-read" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover">
+            <machine><world/></machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse(rights, true)
+
+      i = r.index_elements
+      expect(i).to be
+      expect(i[:errors] ).to include("no_read_access")
+      expect(i[:primary]).to eq "citation"
+      expect(i[:terms]  ).to include("world_discover")
+      expect(i[:terms]  ).not_to include("has_rule", "world_read", "world|no-download", "none_read", "none_discover")
+    end
+
+    it "Missing-discover machine" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <world rule="no-download"/>
+            </machine>
+          </access>
+          <access type="discover">
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse(rights, true)
+
+      i = r.index_elements
+      expect(i).to be
+      expect(i[:errors] ).to include("no_discover_machine")
+      expect(i[:primary]).to eq "dark"
+      expect(i[:terms]  ).to include("has_rule", "world|no-download")
+      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+    end
+
+    it "No machines (read or discover)" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+          </access>
+          <access type="discover">
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+      r = Dor::RightsAuth.parse(rights, true)
+
+      i = r.index_elements
+      expect(i).to be
+      expect(i[:errors] ).to include("no_discover_machine", "no_read_machine")
+      expect(i[:primary]).to eq "dark"
+      expect(i[:terms]  ).not_to include("has_rule", "world|no-download", "world_read", "none_read", "none_discover")
+    end
+  end
+
+  describe "#index_elements" do
     it "Double dark double none" do
       rights =<<-EOXML
       <objectType>
