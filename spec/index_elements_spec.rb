@@ -46,7 +46,6 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
 
       i = r.index_elements
-      puts i
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq "dark"
