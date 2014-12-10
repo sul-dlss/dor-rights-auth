@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Dor::RightsAuth do
-  
-  describe "#world_rights" do
-    
+
+  describe "#world_rights no-download" do
+
     it "returns the value and rule attribute for the entire object" do
       rights =<<-EOXML
       <objectType>
@@ -17,15 +17,15 @@ describe Dor::RightsAuth do
       </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
-      
+
       world, rule = r.world_rights
       expect(world).to be
       expect(rule).to eq('no-download')
     end
   end
-  
-  describe "#stanford_only_rights" do
-    
+
+  describe "#stanford_only_rights no-download" do
+
     it "returns the value and rule attribute for the entire object" do
       rights =<<-EOXML
       <objectType>
@@ -39,13 +39,13 @@ describe Dor::RightsAuth do
       </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
-      
+
       su_only, rule = r.stanford_only_rights
       expect(su_only).to be
       expect(rule).to eq('no-download')
     end
   end
-  
+
   context "stanford-only full privileges, world download-only" do
     it "handles stuff" do
       rights =<<-EOXML
@@ -61,19 +61,19 @@ describe Dor::RightsAuth do
       </objectType>
       EOXML
       @r = Dor::RightsAuth.parse rights
-      
+
       su_only, rule = @r.stanford_only_rights
       expect(su_only).to be
       expect(rule).to be_nil
       expect(@r).to be_stanford_only_unrestricted
-      
+
       world_val, world_rule = @r.world_rights
       expect(world_val).to be
       expect(world_rule).to eq('no-download')
       expect(@r).not_to be_world_unrestricted
     end
   end
-  
+
   describe "#world_rights_for_file and #stanford_only_rights_for_file" do
     before(:each) do
       rights =<<-EOXML
@@ -98,29 +98,29 @@ describe Dor::RightsAuth do
       EOXML
       @r = Dor::RightsAuth.parse rights
     end
-    
+
     it "returns the value and rule attribute for a single file" do
       world, rule = @r.world_rights_for_file('interview.doc')
-      expect(world).to eq(true)
+      expect(world).to be_truthy
       expect(rule).to eq('no-download')
-      
+
       su, su_rule = @r.stanford_only_rights_for_file('interview.doc')
-      expect(su).to eq(true)
+      expect(su).to be_truthy
       expect(su_rule).to be_nil
     end
-    
+
     it "defaults to object level rights when the questioned file does not have listed rights" do
       world, rule = @r.world_rights_for_file('object.doc')
-      expect(world).to eq(true)
+      expect(world).to be_truthy
       expect(rule).to eq(nil)
-      
+
       su, su_rule = @r.stanford_only_rights_for_file('object.doc')
-      expect(su).to eq(false)
+      expect(su).to be_falsey
       expect(su_rule).to be_nil
     end
-    
+
   end
-  
+
   describe "#agent_rights_for_file" do
     before(:each) do
       rights =<<-EOXML
@@ -148,32 +148,32 @@ describe Dor::RightsAuth do
       EOXML
       @r = Dor::RightsAuth.parse rights
     end
-    
+
     it "returns agent rights for a given file" do
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp1')
-      expect(agent_val).to eq(true)
-      expect(rule).to eq(nil)
-      
+      expect(agent_val).to be_truthy
+      expect(rule).to be_nil
+
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp2')
-      expect(agent_val).to eq(true)
+      expect(agent_val).to be_truthy
       expect(rule).to eq('somerule')
-      
+
       # if agent not listed for file, return false
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'unauthorized-app')
-      expect(agent_val).to eq(false)
-      expect(rule).to eq(nil)
+      expect(agent_val).to be_falsey
+      expect(rule).to be_nil
     end
-    
+
     it "returns object level rights if the file does not have listed rights" do
        agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
-       expect(agent_val).to eq(true)
+       expect(agent_val).to be_truthy
        expect(rule).to eq('objlevel')
-  
+
        agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'someapp2')
-       expect(agent_val).to eq(false)
-       expect(rule).to eq(nil)
+       expect(agent_val).to be_falsey
+       expect(rule).to be_nil
     end
-    
+
   end
-  
+
 end
