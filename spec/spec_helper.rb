@@ -6,6 +6,3 @@ require 'rspec'
 
 require 'dor/rights_auth'
 
-RSpec.configure do |conf|
-  
-end
