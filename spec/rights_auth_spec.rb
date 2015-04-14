@@ -6,7 +6,6 @@ describe Dor::RightsAuth do
 
     it "returns true if the object has stanford-only read access without a rule attribute" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -14,7 +13,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -23,7 +21,6 @@ describe Dor::RightsAuth do
 
     it "returns true if capital S is used for 'Stanford'" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -31,7 +28,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -40,7 +36,6 @@ describe Dor::RightsAuth do
 
     it "returns false if the object does not have stanford-only read access" do
       xml =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -48,7 +43,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       rights = Dor::RightsAuth.parse xml
@@ -57,7 +51,6 @@ describe Dor::RightsAuth do
 
     it "returns false if the object has stanford-only read access with a rule attribute" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -65,7 +58,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -74,7 +66,6 @@ describe Dor::RightsAuth do
 
     it "returns false when there is file-level stanford-only access but object-level world access" do
       xml =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <file>interviews1.doc</file>
@@ -89,7 +80,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       rights = Dor::RightsAuth.parse xml
@@ -101,7 +91,6 @@ describe Dor::RightsAuth do
 
     it "returns true if this object has world readable visibility" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -109,7 +98,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -118,7 +106,6 @@ describe Dor::RightsAuth do
 
     it "returns false if there is no machine readable world visibility" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -126,7 +113,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -135,7 +121,6 @@ describe Dor::RightsAuth do
 
     it "returns false if there is no machine/world access WITHOUT a rule attribute" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -143,7 +128,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -152,7 +136,6 @@ describe Dor::RightsAuth do
 
     it "returns false if the rights metadata does not contain a read block" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
         <access type="discover">
           <machine>
@@ -160,7 +143,6 @@ describe Dor::RightsAuth do
           </machine>
         </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -169,7 +151,6 @@ describe Dor::RightsAuth do
 
     it "returns false when there is file-level world access but object-level stanford-only access" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <file>public1.doc</file>
@@ -184,7 +165,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -197,7 +177,6 @@ describe Dor::RightsAuth do
 
     it "returns true if the rights metadata contains a read block" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -205,7 +184,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -214,7 +192,6 @@ describe Dor::RightsAuth do
 
     it "returns false if the rights metadata does not contain a read block" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -222,7 +199,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -231,7 +207,6 @@ describe Dor::RightsAuth do
 
     it "returns false if there's only a read access block with files, but no object level read access" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -246,7 +221,6 @@ describe Dor::RightsAuth do
           </access>
           <!-- No object level read access block -->
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -258,7 +232,6 @@ describe Dor::RightsAuth do
   describe "dark" do
     it "handles explicit none element" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -266,7 +239,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
 
@@ -285,10 +257,8 @@ describe Dor::RightsAuth do
   describe "empty" do
     it "rightsMetadata" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
         </rightsMetadata>
-      </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
 
@@ -304,12 +274,10 @@ describe Dor::RightsAuth do
     end
     it "access" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="discover">
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
 
@@ -325,14 +293,12 @@ describe Dor::RightsAuth do
     end
     it "machine" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="discover">
             <machine>
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
       r = Dor::RightsAuth.parse rights
 
@@ -351,7 +317,6 @@ describe Dor::RightsAuth do
   describe "#allowed_read_agent?" do
     it "returns true if the passed in user is an allowed read agent" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -359,7 +324,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -368,7 +332,6 @@ describe Dor::RightsAuth do
 
     it "handles more than one agent" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -377,7 +340,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -386,7 +348,6 @@ describe Dor::RightsAuth do
 
     it "returns false if the passed in user is NOT an allowed read agent" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -394,7 +355,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -403,7 +363,6 @@ describe Dor::RightsAuth do
 
     it "returns false if there is no read agent in rightsMetadata" do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <machine>
@@ -411,7 +370,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       r = Dor::RightsAuth.parse rights
@@ -424,7 +382,6 @@ describe Dor::RightsAuth do
 
     before(:all) do
       rights =<<-EOXML
-      <objectType>
         <rightsMetadata>
           <access type="read">
             <file>interviews1.doc</file>
@@ -445,7 +402,6 @@ describe Dor::RightsAuth do
             </machine>
           </access>
         </rightsMetadata>
-      </objectType>
       EOXML
 
       @r = Dor::RightsAuth.parse rights
@@ -470,7 +426,6 @@ describe Dor::RightsAuth do
 
       before(:all) do
         rights =<<-EOXML
-        <objectType>
           <rightsMetadata>
             <access type="read">
               <file>interviews1.doc</file>
@@ -485,7 +440,6 @@ describe Dor::RightsAuth do
               </machine>
             </access>
           </rightsMetadata>
-        </objectType>
         EOXML
 
         @r = Dor::RightsAuth.parse rights
