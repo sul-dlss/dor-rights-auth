@@ -11,24 +11,23 @@ describe Dor::RightsAuth do
         </access>
       </rightsMetadata>
     EOXML
+    @stanford_xml = <<-EOXML
+      <rightsMetadata>
+        <access type="read">
+          <machine>
+            <group>stanford</group>
+          </machine>
+        </access>
+      </rightsMetadata>
+    EOXML
   end
 
   describe "#stanford_only_unrestricted?" do
 
     it "returns true if the object has stanford-only read access without a rule attribute" do
-      rights =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <group>stanford</group>
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      r1 = Dor::RightsAuth.parse rights
-      r2 = Dor::RightsAuth.parse "<some><other><junk>#{rights}</junk></other></some>"
-      r3 = Dor::RightsAuth.parse Nokogiri::XML(rights)
+      r1 = Dor::RightsAuth.parse @stanford_xml
+      r2 = Dor::RightsAuth.parse "<some><other><junk>#{@stanford_xml}</junk></other></some>"
+      r3 = Dor::RightsAuth.parse Nokogiri::XML(@stanford_xml)
       [r1,r2,r3].each{ |r|
         expect(r).to be_stanford_only_unrestricted
         expect(r).not_to be_public_unrestricted
@@ -103,17 +102,7 @@ describe Dor::RightsAuth do
     end
 
     it "returns false if there is no machine readable world visibility" do
-      rights =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <group>stanford</group>
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      r = Dor::RightsAuth.parse rights
+      r = Dor::RightsAuth.parse @stanford_xml
       expect(r).not_to be_public_unrestricted
     end
 
