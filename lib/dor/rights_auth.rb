@@ -290,14 +290,15 @@ module Dor
 
 
     # Create a Dor::RightsAuth object from xml
-    # @param [String] xml rightsMetadata xml that will be parsed to build a RightsAuth object
-    # @return Dor::RightsAuth created after parsing rightsMetadata xml
+    # @param [String|Nokogiri::XML::Document] xml rightsMetadata xml that will be parsed to build a RightsAuth object
+    # @param [Boolean] forindex, flag for requesting index_elements be parsed
+    # @return [Dor::RightsAuth] object created after parsing rightsMetadata xml
     def RightsAuth.parse(xml, forindex=false)
       rights = Dor::RightsAuth.new
       rights.obj_lvl = EntityRights.new
       rights.obj_lvl.world = Rights.new
 
-      doc = Nokogiri::XML(xml)
+      doc = xml.is_a?(Nokogiri::XML::Document) ? xml.clone : Nokogiri::XML(xml)
       if(doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world"))
         rights.obj_lvl.world.value = true
         rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world/@rule")
@@ -386,4 +387,3 @@ module Dor
 
   end
 end
-

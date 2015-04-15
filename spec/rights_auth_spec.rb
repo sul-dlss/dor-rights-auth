@@ -28,10 +28,11 @@ describe Dor::RightsAuth do
 
       r1 = Dor::RightsAuth.parse rights
       r2 = Dor::RightsAuth.parse "<some><other><junk>#{rights}</junk></other></some>"
-      expect(r1).to be_stanford_only_unrestricted
-      expect(r2).to be_stanford_only_unrestricted
-      expect(r1).not_to be_public_unrestricted
-      expect(r2).not_to be_public_unrestricted
+      r3 = Dor::RightsAuth.parse Nokogiri::XML(rights)
+      [r1,r2,r3].each{ |r|
+        expect(r).to be_stanford_only_unrestricted
+        expect(r).not_to be_public_unrestricted
+      }
     end
 
     it "returns true if capital S is used for 'Stanford'" do
@@ -216,9 +217,27 @@ describe Dor::RightsAuth do
 
   end
 
-  describe "dark" do
-    it "handles explicit none element" do
-      rights =<<-EOXML
+  shared_examples "dark scenarios" do
+    describe "parse" do
+      it "correctly" do
+        r = Dor::RightsAuth.parse rights
+
+        world, rule1 = r.world_rights
+        stan,  rule2 = r.stanford_only_rights
+        expect(world).not_to be
+        expect(stan ).not_to be
+        expect(rule1).to be_nil
+        expect(rule2).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted_file('file.doc')
+        expect(r).not_to be_public_unrestricted
+      end
+    end
+  end
+
+  describe "explicit none" do
+    it_behaves_like "dark scenarios" do
+      let(:rights) {<<-EOXML
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -227,59 +246,32 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-      r = Dor::RightsAuth.parse rights
-
-      world, rule1 = r.world_rights
-      stan,  rule2 = r.stanford_only_rights
-      expect(world).not_to be
-      expect(stan ).not_to be
-      expect(rule1).to be_nil
-      expect(rule2).to be_nil
-      expect(r).not_to be_readable
-      expect(r).not_to be_public_unrestricted_file('file.doc')
-      expect(r).not_to be_public_unrestricted
+      }
     end
   end
-
-  describe "empty" do
-    it "rightsMetadata" do
-      rights =<<-EOXML
-        <rightsMetadata>
-        </rightsMetadata>
-      EOXML
-      r = Dor::RightsAuth.parse rights
-
-      world, rule1 = r.world_rights
-      stan,  rule2 = r.stanford_only_rights
-      expect(world).not_to be
-      expect(stan ).not_to be
-      expect(rule1).to be_nil
-      expect(rule2).to be_nil
-      expect(r).not_to be_readable
-      expect(r).not_to be_public_unrestricted_file('file.doc')
-      expect(r).not_to be_public_unrestricted
+  describe "empty rightsMetadata" do
+    it_behaves_like "dark scenarios" do
+      let(:rights) {<<-EOXML
+          <rightsMetadata>
+          </rightsMetadata>
+        EOXML
+      }
     end
-    it "access" do
-      rights =<<-EOXML
+  end
+  describe "empty access" do
+    it_behaves_like "dark scenarios" do
+      let(:rights) {<<-EOXML
         <rightsMetadata>
           <access type="discover">
           </access>
         </rightsMetadata>
       EOXML
-      r = Dor::RightsAuth.parse rights
-
-      world, rule1 = r.world_rights
-      stan,  rule2 = r.stanford_only_rights
-      expect(world).not_to be
-      expect(stan ).not_to be
-      expect(rule1).to be_nil
-      expect(rule2).to be_nil
-      expect(r).not_to be_readable
-      expect(r).not_to be_public_unrestricted_file('file.doc')
-      expect(r).not_to be_public_unrestricted
+      }
     end
-    it "machine" do
-      rights =<<-EOXML
+  end
+  describe "empty machine" do
+    it_behaves_like "dark scenarios" do
+      let(:rights) {<<-EOXML
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -287,17 +279,7 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-      r = Dor::RightsAuth.parse rights
-
-      world, rule1 = r.world_rights
-      stan,  rule2 = r.stanford_only_rights
-      expect(world).not_to be
-      expect(stan ).not_to be
-      expect(rule1).to be_nil
-      expect(rule2).to be_nil
-      expect(r).not_to be_readable
-      expect(r).not_to be_public_unrestricted_file('file.doc')
-      expect(r).not_to be_public_unrestricted
+      }
     end
   end
 
@@ -385,7 +367,7 @@ describe Dor::RightsAuth do
     end
 
     it "returns true if a file has stanford-only read access" do
-       expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
+      expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
     end
 
     it "returns the value of object level #stanford_only_unrestricted? if the queried file is not listed" do
