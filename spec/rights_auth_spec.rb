@@ -1,6 +1,17 @@
 require 'spec_helper'
 
 describe Dor::RightsAuth do
+  before(:all) do
+    @world_xml = <<-EOXML
+      <rightsMetadata>
+        <access type="read">
+          <machine>
+            <world />
+          </machine>
+        </access>
+      </rightsMetadata>
+    EOXML
+  end
 
   describe "#stanford_only_unrestricted?" do
 
@@ -15,8 +26,12 @@ describe Dor::RightsAuth do
         </rightsMetadata>
       EOXML
 
-      r = Dor::RightsAuth.parse rights
-      expect(r).to be_stanford_only_unrestricted
+      r1 = Dor::RightsAuth.parse rights
+      r2 = Dor::RightsAuth.parse "<some><other><junk>#{rights}</junk></other></some>"
+      expect(r1).to be_stanford_only_unrestricted
+      expect(r2).to be_stanford_only_unrestricted
+      expect(r1).not_to be_public_unrestricted
+      expect(r2).not_to be_public_unrestricted
     end
 
     it "returns true if capital S is used for 'Stanford'" do
@@ -32,21 +47,13 @@ describe Dor::RightsAuth do
 
       r = Dor::RightsAuth.parse rights
       expect(r).to be_stanford_only_unrestricted
+      expect(r).not_to be_public_unrestricted
     end
 
     it "returns false if the object does not have stanford-only read access" do
-      xml =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      rights = Dor::RightsAuth.parse xml
-      expect(rights).to_not be_stanford_only_unrestricted
+      r = Dor::RightsAuth.parse @world_xml
+      expect(r).not_to be_stanford_only_unrestricted
+      expect(r).to be_public_unrestricted
     end
 
     it "returns false if the object has stanford-only read access with a rule attribute" do
@@ -90,17 +97,7 @@ describe Dor::RightsAuth do
   describe "#public_unrestricted?" do
 
     it "returns true if this object has world readable visibility" do
-      rights =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      r = Dor::RightsAuth.parse rights
+      r = Dor::RightsAuth.parse @world_xml
       expect(r).to be_public_unrestricted
     end
 
@@ -137,11 +134,11 @@ describe Dor::RightsAuth do
     it "returns false if the rights metadata does not contain a read block" do
       rights =<<-EOXML
         <rightsMetadata>
-        <access type="discover">
-          <machine>
-            <world />
-          </machine>
-        </access>
+          <access type="discover">
+            <machine>
+              <world />
+            </machine>
+          </access>
         </rightsMetadata>
       EOXML
 
@@ -176,17 +173,7 @@ describe Dor::RightsAuth do
   describe "#readable?" do
 
     it "returns true if the rights metadata contains a read block" do
-      rights =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      r = Dor::RightsAuth.parse rights
+      r = Dor::RightsAuth.parse @world_xml
       expect(r).to be_readable
     end
 
@@ -362,17 +349,7 @@ describe Dor::RightsAuth do
     end
 
     it "returns false if there is no read agent in rightsMetadata" do
-      rights =<<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      r = Dor::RightsAuth.parse rights
+      r = Dor::RightsAuth.parse @world_xml
       expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
 
@@ -411,8 +388,9 @@ describe Dor::RightsAuth do
        expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
     end
 
-    it "returns the value of object level #stanford_only_unrestricted? if the queried file is not listed " do
+    it "returns the value of object level #stanford_only_unrestricted? if the queried file is not listed" do
       expect(@r).not_to be_stanford_only_unrestricted_file('object-level-rights.xml')
+      expect(@r.stanford_only_unrestricted_file?('object-level-rights.xml')).to eq @r.stanford_only_unrestricted?
     end
 
     it "returns false if a file is stanford-only AND has a rule attribute" do
