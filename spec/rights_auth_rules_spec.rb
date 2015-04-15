@@ -165,13 +165,13 @@ describe Dor::RightsAuth do
     end
 
     it "returns object level rights if the file does not have listed rights" do
-       agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
-       expect(agent_val).to be_truthy
-       expect(rule).to eq('objlevel')
+      agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
+      expect(agent_val).to be_truthy
+      expect(rule).to eq('objlevel')
 
-       agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'someapp2')
-       expect(agent_val).to be_falsey
-       expect(rule).to be_nil
+      agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'someapp2')
+      expect(agent_val).to be_falsey
+      expect(rule).to be_nil
     end
 
   end
