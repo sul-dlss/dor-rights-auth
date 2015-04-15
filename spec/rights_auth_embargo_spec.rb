@@ -40,6 +40,40 @@ describe Dor::RightsAuth do
       expect(r).not_to be_embargoed
     end
     
+    it "parse throws exception on empty embargo date" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <embargoReleaseDate></embargoReleaseDate>
+              <group>stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+
+      expect {Dor::RightsAuth.parse rights}.to raise_error
+    end
+    
+    it "parse throws exception on illegal embargo date" do
+      rights =<<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <embargoReleaseDate>9999-44-12</embargoReleaseDate>
+              <group>stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
+
+      expect {Dor::RightsAuth.parse rights}.to raise_error
+    end
+
     it "returns false if the embargo date has passed" do
       yesterday = Time.new - 60*60*24
       rights =<<-EOXML
