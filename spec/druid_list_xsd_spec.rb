@@ -1,14 +1,14 @@
 require 'spec_helper'
 require 'nokogiri'
 
-describe "XSD with <include> subcomponent" do
-  describe "validate" do
-    
+describe 'XSD with <include> subcomponent' do
+  describe 'validate' do
+
     path = File.expand_path(File.dirname(__FILE__) + '/../lib/dor/xsd/druidlist.xsd')
     druidlist = Nokogiri::XML::Schema(File.open(path))
 
-    it "succeeds for conformant data" do
-      xmlblock =<<-'EOXML'
+    it 'succeeds for conformant data' do
+      xmlblock = <<-'EOXML'
 <druidlist>
 <druid>vh098ff0657</druid>
 <druid>tp736tw2065</druid>
@@ -35,13 +35,13 @@ describe "XSD with <include> subcomponent" do
       end
       expect(errors).to eq []
     end
-    
+
     {
         'tp736tw205'   => 'too short',
         'dy555zk94255' => 'too long',
         'tf943n!9312'  => 'illegal character',
         'wj852r5z419'  => 'wrong positions',
-        'wj852 5z419'  => 'internal whitespace',
+        'wj852 5z419'  => 'internal whitespace'
     }.each { |k,v|
         it "catches bad value (#{v})" do
           xmlblock = "<druidlist><druid>#{k}</druid></druidlist>"

@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe Dor::RightsAuth do
 
-  describe "#world_rights no-download" do
+  describe '#world_rights no-download' do
 
-    it "returns the value and rule attribute for the entire object" do
-      rights =<<-EOXML
+    it 'returns the value and rule attribute for the entire object' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -24,10 +24,10 @@ describe Dor::RightsAuth do
     end
   end
 
-  describe "#stanford_only_rights no-download" do
+  describe '#stanford_only_rights no-download' do
 
-    it "returns the value and rule attribute for the entire object" do
-      rights =<<-EOXML
+    it 'returns the value and rule attribute for the entire object' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -46,9 +46,9 @@ describe Dor::RightsAuth do
     end
   end
 
-  context "stanford-only full privileges, world download-only" do
-    it "handles stuff" do
-      rights =<<-EOXML
+  context 'stanford-only full privileges, world download-only' do
+    it 'handles stuff' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -74,9 +74,9 @@ describe Dor::RightsAuth do
     end
   end
 
-  describe "#world_rights_for_file and #stanford_only_rights_for_file" do
+  describe '#world_rights_for_file and #stanford_only_rights_for_file' do
     before(:each) do
-      rights =<<-EOXML
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -99,7 +99,7 @@ describe Dor::RightsAuth do
       @r = Dor::RightsAuth.parse rights
     end
 
-    it "returns the value and rule attribute for a single file" do
+    it 'returns the value and rule attribute for a single file' do
       world, rule = @r.world_rights_for_file('interview.doc')
       expect(world).to be_truthy
       expect(rule).to eq('no-download')
@@ -109,7 +109,7 @@ describe Dor::RightsAuth do
       expect(su_rule).to be_nil
     end
 
-    it "defaults to object level rights when the questioned file does not have listed rights" do
+    it 'defaults to object level rights when the questioned file does not have listed rights' do
       world, rule = @r.world_rights_for_file('object.doc')
       expect(world).to be_truthy
       expect(rule).to eq(nil)
@@ -121,9 +121,9 @@ describe Dor::RightsAuth do
 
   end
 
-  describe "#agent_rights_for_file" do
+  describe '#agent_rights_for_file' do
     before(:each) do
-      rights =<<-EOXML
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -149,7 +149,7 @@ describe Dor::RightsAuth do
       @r = Dor::RightsAuth.parse rights
     end
 
-    it "returns agent rights for a given file" do
+    it 'returns agent rights for a given file' do
       agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp1')
       expect(agent_val).to be_truthy
       expect(rule).to be_nil
@@ -164,7 +164,7 @@ describe Dor::RightsAuth do
       expect(rule).to be_nil
     end
 
-    it "returns object level rights if the file does not have listed rights" do
+    it 'returns object level rights if the file does not have listed rights' do
       agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
       expect(agent_val).to be_truthy
       expect(rule).to eq('objlevel')

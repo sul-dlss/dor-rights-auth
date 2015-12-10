@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Dor::RightsAuth do
-  it "handles fixture druid:oo201oo0001" do
+  it 'handles fixture druid:oo201oo0001' do
     xml = <<-EOXML
     <?xml version="1.0"?>
       <rightsMetadata>
@@ -28,6 +28,6 @@ describe Dor::RightsAuth do
     r = Dor::RightsAuth.parse(xml, true)
     expect(r).to be_stanford_only_unrestricted
     expect(r).not_to be_public_unrestricted
-    expect(r.index_elements).to include :primary => "stanford"
+    expect(r.index_elements).to include :primary => 'stanford'
   end
 end

@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe Dor::RightsAuth do
 
-  describe "#index_elements catches errors" do
+  describe '#index_elements catches errors' do
 
-    it "Missing-discover world-read single rule" do
-      rights =<<-EOXML
+    it 'Missing-discover world-read single rule' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -20,14 +20,14 @@ describe Dor::RightsAuth do
 
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include("no_discover_access")
-      expect(i[:primary]).to eq "dark"
-      expect(i[:terms]  ).to include("has_rule", "world|no-download")
-      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+      expect(i[:errors] ).to include('no_discover_access')
+      expect(i[:primary]).to eq 'dark'
+      expect(i[:terms]  ).to include('has_rule', 'world|no-download')
+      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end
 
-    it "Missing-read" do
-      rights =<<-EOXML
+    it 'Missing-read' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="discover">
@@ -40,14 +40,14 @@ describe Dor::RightsAuth do
 
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include("no_read_access")
-      expect(i[:primary]).to eq "citation"
-      expect(i[:terms]  ).to include("world_discover")
-      expect(i[:terms]  ).not_to include("has_rule", "world_read", "world|no-download", "none_read", "none_discover")
+      expect(i[:errors] ).to include('no_read_access')
+      expect(i[:primary]).to eq 'citation'
+      expect(i[:terms]  ).to include('world_discover')
+      expect(i[:terms]  ).not_to include('has_rule', 'world_read', 'world|no-download', 'none_read', 'none_discover')
     end
 
-    it "Missing-discover machine" do
-      rights =<<-EOXML
+    it 'Missing-discover machine' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -64,14 +64,14 @@ describe Dor::RightsAuth do
 
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include("no_discover_machine")
-      expect(i[:primary]).to eq "dark"
-      expect(i[:terms]  ).to include("has_rule", "world|no-download")
-      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+      expect(i[:errors] ).to include('no_discover_machine')
+      expect(i[:primary]).to eq 'dark'
+      expect(i[:terms]  ).to include('has_rule', 'world|no-download')
+      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end
 
-    it "No machines (read or discover)" do
-      rights =<<-EOXML
+    it 'No machines (read or discover)' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -85,15 +85,15 @@ describe Dor::RightsAuth do
 
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include("no_discover_machine", "no_read_machine")
-      expect(i[:primary]).to eq "dark"
-      expect(i[:terms]  ).not_to include("has_rule", "world|no-download", "world_read", "none_read", "none_discover")
+      expect(i[:errors] ).to include('no_discover_machine', 'no_read_machine')
+      expect(i[:primary]).to eq 'dark'
+      expect(i[:terms]  ).not_to include('has_rule', 'world|no-download', 'world_read', 'none_read', 'none_discover')
     end
   end
 
-  describe "#index_elements" do
-    it "Double dark double none" do
-      rights =<<-EOXML
+  describe '#index_elements' do
+    it 'Double dark double none' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -114,13 +114,13 @@ describe Dor::RightsAuth do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "dark"
-      expect(i[:terms]  ).to include("none_read", "none_discover")
-      expect(i[:terms]  ).not_to include("has_rule", "world_read", "world_discover")
+      expect(i[:primary]).to eq 'dark'
+      expect(i[:terms]  ).to include('none_read', 'none_discover')
+      expect(i[:terms]  ).not_to include('has_rule', 'world_read', 'world_discover')
     end
 
-    it "World-discover world-read single rule" do
-      rights =<<-EOXML
+    it 'World-discover world-read single rule' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -141,16 +141,16 @@ describe Dor::RightsAuth do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "complicated"
-      expect(i[:terms]  ).to include("has_rule", "world_discover")
-      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+      expect(i[:primary]).to eq 'complicated'
+      expect(i[:terms]  ).to include('has_rule', 'world_discover')
+      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end
   end
 
-  describe "#stanford_only no-download" do
+  describe '#stanford_only no-download' do
 
-    it "returns the value and rule attribute for the entire object" do
-      rights =<<-EOXML
+    it 'returns the value and rule attribute for the entire object' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -170,15 +170,15 @@ describe Dor::RightsAuth do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "complicated"
-      expect(i[:terms]  ).to include("has_rule", "has_group_rights", "group|stanford_with_rule", "world_discover")
-      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+      expect(i[:primary]).to eq 'complicated'
+      expect(i[:terms]  ).to include('has_rule', 'has_group_rights', 'group|stanford_with_rule', 'world_discover')
+      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end
   end
 
-  describe "stanford-only full privileges, world download-only" do
-    it "handles stanford" do
-      rights =<<-EOXML
+  describe 'stanford-only full privileges, world download-only' do
+    it 'handles stanford' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="discover">
@@ -200,14 +200,14 @@ describe Dor::RightsAuth do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "stanford"
-      expect(i[:terms]  ).to include("has_rule", "has_group_rights", "group|stanford")
-      expect(i[:terms]  ).not_to include("world_read", "none_read", "none_discover")
+      expect(i[:primary]).to eq 'stanford'
+      expect(i[:terms]  ).to include('has_rule', 'has_group_rights', 'group|stanford')
+      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end
   end
 
-  describe "#world_rights_for_file and #stanford_only_rights_for_file" do
-    rights =<<-EOXML
+  describe '#world_rights_for_file and #stanford_only_rights_for_file' do
+    rights = <<-EOXML
     <objectType>
       <rightsMetadata>
         <access type="discover"><machine><world/></machine></access>    <!-- our most common "discover" -->
@@ -228,21 +228,21 @@ describe Dor::RightsAuth do
     EOXML
     r = Dor::RightsAuth.parse(rights, true)
 
-    it "single file" do
+    it 'single file' do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "world"
-      ["world_read", "world_discover", "has_file_rights", "file_has_group", "file_has_world", "file_rights_for_group|1", "file_rights_for_world|1"].each { |x|
+      expect(i[:primary]).to eq 'world'
+      ['world_read', 'world_discover', 'has_file_rights', 'file_has_group', 'file_has_world', 'file_rights_for_group|1', 'file_rights_for_world|1'].each { |x|
         expect(i[:terms]).to include(x)
       }
-      expect(i[:terms]).not_to include("none_read", "none_discover")
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
 
   end
 
-  describe "#agent_rights" do
-    rights =<<-EOXML
+  describe '#agent_rights' do
+    rights = <<-EOXML
     <objectType>
       <rightsMetadata>
         <access type="discover"><machine><world/></machine></access>    <!-- our most common "discover" -->
@@ -281,17 +281,17 @@ describe Dor::RightsAuth do
     EOXML
     r = Dor::RightsAuth.parse(rights, true)
 
-    it "handles agent rights at multiple levels" do
+    it 'handles agent rights at multiple levels' do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq "world"
-      ["world_read", "world_discover", "has_rule", "has_file_rights",
-          "file_has_group", "file_has_world", "file_has_agent",
-          "file_rights_count|3", "file_rights_for_agent|2", "file_rights_for_group|4", "file_rights_for_world|3", ].each { |x|
+      expect(i[:primary]).to eq 'world'
+      ['world_read', 'world_discover', 'has_rule', 'has_file_rights',
+          'file_has_group', 'file_has_world', 'file_has_agent',
+          'file_rights_count|3', 'file_rights_for_agent|2', 'file_rights_for_group|4', 'file_rights_for_world|3' ].each { |x|
         expect(i[:terms]).to include(x)
       }
-      expect(i[:terms]).not_to include("none_read", "none_discover")
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
   end
 

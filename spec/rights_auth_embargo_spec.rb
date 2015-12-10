@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Dor::RightsAuth do
-  
-  describe "#embargoed?" do
-    
-    it "returns true if the object is currently embargoed" do
-      tomorrow = Time.new + 60*60*24
-      rights =<<-EOXML
+
+  describe '#embargoed?' do
+
+    it 'returns true if the object is currently embargoed' do
+      tomorrow = Time.new + 60 * 60 * 24
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -22,9 +22,9 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).to be_embargoed
     end
-    
-    it "returns false if there is no embargo date" do
-      rights =<<-EOXML
+
+    it 'returns false if there is no embargo date' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -39,9 +39,9 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_embargoed
     end
-    
-    it "parse throws exception on empty embargo date" do
-      rights =<<-EOXML
+
+    it 'parse throws exception on empty embargo date' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -56,9 +56,9 @@ describe Dor::RightsAuth do
 
       expect {Dor::RightsAuth.parse rights}.to raise_error
     end
-    
-    it "parse throws exception on illegal embargo date" do
-      rights =<<-EOXML
+
+    it 'parse throws exception on illegal embargo date' do
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -74,9 +74,9 @@ describe Dor::RightsAuth do
       expect {Dor::RightsAuth.parse rights}.to raise_error
     end
 
-    it "returns false if the embargo date has passed" do
-      yesterday = Time.new - 60*60*24
-      rights =<<-EOXML
+    it 'returns false if the embargo date has passed' do
+      yesterday = Time.new - 60 * 60 * 24
+      rights = <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -92,7 +92,7 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_embargoed
     end
-    
+
   end
-  
+
 end
