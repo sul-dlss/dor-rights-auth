@@ -37,25 +37,24 @@ describe 'XSD with <include> subcomponent' do
     end
 
     {
-        'tp736tw205'   => 'too short',
-        'dy555zk94255' => 'too long',
-        'tf943n!9312'  => 'illegal character',
-        'wj852r5z419'  => 'wrong positions',
-        'wj852 5z419'  => 'internal whitespace'
-    }.each { |k,v|
-        it "catches bad value (#{v})" do
-          xmlblock = "<druidlist><druid>#{k}</druid></druidlist>"
-          druidlist = Nokogiri::XML::Schema(File.open(path))
-          xml = Nokogiri::XML(xmlblock)
-          expect(druidlist).to be
-          expect(xml).to be
-          errors = []
-          druidlist.validate(xml).each do |error|
-            errors.push error.message
-            # puts error.message
-          end
-          expect(errors.size).to eq 2
+      'tp736tw205'   => 'too short',
+      'dy555zk94255' => 'too long',
+      'tf943n!9312'  => 'illegal character',
+      'wj852r5z419'  => 'wrong positions',
+      'wj852 5z419'  => 'internal whitespace'
+    }.each { |k, v|
+      it "catches bad value (#{v})" do
+        xmlblock = "<druidlist><druid>#{k}</druid></druidlist>"
+        druidlist = Nokogiri::XML::Schema(File.open(path))
+        xml = Nokogiri::XML(xmlblock)
+        expect(druidlist).to be
+        expect(xml).to be
+        errors = []
+        druidlist.validate(xml).each do |error|
+          errors.push error.message
         end
+        expect(errors.size).to eq 2
+      end
     }
 
   end

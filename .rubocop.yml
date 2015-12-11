@@ -5,6 +5,9 @@ Style/SpaceBeforeBlockBraces:
   Exclude:
     - 'spec/**/*_spec.rb'
 
+Style/ExtraSpacing:
+  AllowForAlignment: true
+
 # Configuration parameters: AllowURI, URISchemes.
 Metrics/LineLength:
   Max: 200

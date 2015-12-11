@@ -28,12 +28,6 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 17
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/AlignArray:
-  Exclude:
-    - 'spec/index_elements_spec.rb'
-
 # Offense count: 11
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.
@@ -45,31 +39,11 @@ Style/BlockDelimiters:
     - 'spec/rights_auth_spec.rb'
     - 'spec/rights_xsd_spec.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/ClassMethods:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-Style/CommentAnnotation:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/DeprecatedHashMethods:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
 # Offense count: 2
 # Configuration parameters: Exclude.
 Style/Documentation:
   Exclude:
     - 'spec/**/*'
-    - 'test/**/*'
     - 'lib/dor/rights_auth.rb'
 
 # Offense count: 28
@@ -91,76 +65,17 @@ Style/EmptyLinesAroundClassBody:
   Exclude:
     - 'lib/dor/rights_auth.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Style/ExtraSpacing:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: SupportedStyles, UseHashRocketsWithSymbolValues.
 Style/HashSyntax:
   EnforcedStyle: hash_rockets
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/IndentHash:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Width.
-Style/IndentationWidth:
-  Exclude:
-    - 'spec/druid_list_xsd_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/MultilineBlockLayout:
   Exclude:
     - 'spec/rights_auth_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SingleSpaceBeforeFirstArg:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/SpaceAfterComma:
-  Exclude:
-    - 'spec/druid_list_xsd_spec.rb'
-    - 'spec/rights_auth_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleInsidePipes, SupportedStyles.
-Style/SpaceAroundBlockParameters:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles.
-Style/SpaceAroundEqualsInParameterDefault:
-  EnforcedStyle: no_space
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/SpaceBeforeBlockBraces:
-  Enabled: false
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -180,25 +95,6 @@ Style/SpaceInsideParens:
   Exclude:
     - 'spec/index_elements_spec.rb'
     - 'spec/rights_auth_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'dor-rights-auth.gemspec'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/StringLiteralsInInterpolation:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-Style/SymbolProc:
-  Exclude:
-    - 'lib/dor/rights_auth.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.

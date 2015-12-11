@@ -224,7 +224,7 @@ describe Dor::RightsAuth do
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq 'world'
-      ['world_read', 'world_discover', 'has_file_rights', 'file_has_group', 'file_has_world', 'file_rights_for_group|1', 'file_rights_for_world|1'].each { |x|
+      [ 'world_read', 'world_discover', 'has_file_rights', 'file_has_group', 'file_has_world', 'file_rights_for_group|1', 'file_rights_for_world|1' ].each { |x|
         expect(i[:terms]).to include(x)
       }
       expect(i[:terms]).not_to include('none_read', 'none_discover')
@@ -275,9 +275,9 @@ describe Dor::RightsAuth do
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq 'world_qualified'
-      ['world_read', 'world_discover', 'has_rule', 'has_file_rights',
-          'file_has_group', 'file_has_world', 'file_has_agent',
-          'file_rights_count|3', 'file_rights_for_agent|2', 'file_rights_for_group|4', 'file_rights_for_world|3' ].each { |x|
+      [ 'world_read', 'world_discover', 'has_rule', 'has_file_rights',
+        'file_has_group', 'file_has_world', 'file_has_agent',
+        'file_rights_count|3', 'file_rights_for_agent|2', 'file_rights_for_group|4', 'file_rights_for_world|3' ].each { |x|
         expect(i[:terms]).to include(x)
       }
       expect(i[:terms]).not_to include('none_read', 'none_discover')

@@ -28,7 +28,7 @@ describe Dor::RightsAuth do
       r1 = Dor::RightsAuth.parse @stanford_xml
       r2 = Dor::RightsAuth.parse "<some><other><junk>#{@stanford_xml}</junk></other></some>"
       r3 = Dor::RightsAuth.parse Nokogiri::XML(@stanford_xml)
-      [r1,r2,r3].each{ |r|
+      [r1, r2, r3].each{ |r|
         expect(r).to be_stanford_only_unrestricted
         expect(r).not_to be_public_unrestricted
       }

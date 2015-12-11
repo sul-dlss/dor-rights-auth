@@ -2,9 +2,8 @@ require 'nokogiri'
 require 'time'
 
 # We handle the ugly stuff, so you don't have to.
-
 module Dor
-
+  #
   # The Individual Right
   Rights = Struct.new(:value, :rule)
 
@@ -57,7 +56,7 @@ module Dor
     alias_method :public_unrestricted?, :world_unrestricted?
 
     def readable?
-      public_unrestricted? || stanford_only_unrestricted? # TODO stanford_only or public with rule, figure out if this is still a legit method
+      public_unrestricted? || stanford_only_unrestricted? # TODO: stanford_only or public with rule, figure out if this is still a legit method
     end
 
     # Returns true if the object is stanford-only readable AND has no rule attribute
@@ -70,7 +69,7 @@ module Dor
     # @param [String] agent_name Name of the agent that wants to access this object
     # @return [Boolean]
     def agent_unrestricted?(agent_name)
-      return false unless @obj_lvl.agent.has_key? agent_name
+      return false unless @obj_lvl.agent.key? agent_name
       @obj_lvl.agent[agent_name].value && @obj_lvl.agent[agent_name].rule.nil?
     end
 
@@ -82,7 +81,7 @@ module Dor
     # @param [String] file_name Name of the file that is tested for stanford_only rights
     # @return [Boolean]
     def stanford_only_unrestricted_file?(file_name)
-      return stanford_only_unrestricted? if  @file[file_name].nil? || @file[file_name].group[:stanford].nil?
+      return stanford_only_unrestricted? if @file[file_name].nil? || @file[file_name].group[:stanford].nil?
 
       @file[file_name].group[:stanford].value && @file[file_name].group[:stanford].rule.nil?
     end
@@ -93,7 +92,7 @@ module Dor
     # @param [String] file_name Name of file that is tested for world rights
     # @return [Boolean]
     def world_unrestricted_file?(file_name)
-      return world_unrestricted? if  @file[file_name].nil? || @file[file_name].world.nil?
+      return world_unrestricted? if @file[file_name].nil? || @file[file_name].world.nil?
 
       @file[file_name].world.value && @file[file_name].world.rule.nil?
     end
@@ -135,7 +134,7 @@ module Dor
     # @example Using multiple variable assignment to read both array elements
     #   world_exists, world_rule = rights.world_rights_for_file('somefile')
     def world_rights_for_file(file_name)
-      return world_rights if  @file[file_name].nil? || @file[file_name].world.nil?
+      return world_rights if @file[file_name].nil? || @file[file_name].world.nil?
 
       [@file[file_name].world.value, @file[file_name].world.rule]
     end
@@ -148,7 +147,7 @@ module Dor
     # @example Using multiple variable assignment to read both array elements
     #   su_only_exists, su_only_rule = rights.stanford_only_rights_for_file('somefile')
     def stanford_only_rights_for_file(file_name)
-      return stanford_only_rights if  @file[file_name].nil? || @file[file_name].group[:stanford].nil?
+      return stanford_only_rights if @file[file_name].nil? || @file[file_name].group[:stanford].nil?
 
       [@file[file_name].group[:stanford].value, @file[file_name].group[:stanford].rule]
     end
@@ -161,9 +160,9 @@ module Dor
     # @example Using multiple variable assignment to read both array elements
     #   agent_exists, agent_rule = rights.agent_rights_for_file('filex', 'someapp')
     def agent_rights_for_file(file_name, agent_name)
-      return agent_rights(agent_name) if  @file[file_name].nil? # look at object level agent rights if the file-name is not stored
+      return agent_rights(agent_name) if @file[file_name].nil? # look at object level agent rights if the file-name is not stored
 
-      return [false, nil] if  @file[file_name].agent[agent_name].nil? # file rules exist, but not for this agent
+      return [false, nil] if @file[file_name].agent[agent_name].nil? # file rules exist, but not for this agent
 
       [@file[file_name].agent[agent_name].value, @file[file_name].agent[agent_name].rule]
     end
@@ -171,7 +170,7 @@ module Dor
     # Check formedness of rightsMetadata -- to be replaced with XSD once formalized, one fine day
     # @param [Nokogiri::XML] doc the rightsMetadata document
     # @return [Array]        list of things that are wrong with it
-    def RightsAuth.validate_lite(doc)
+    def self.validate_lite(doc)
       return ['no_rightsMetadata'] if doc.nil? || doc.at_xpath('//rightsMetadata').nil?
       errors = []
       maindiscover = doc.at_xpath("//rightsMetadata/access[@type='discover' and not(file)]")
@@ -198,10 +197,10 @@ module Dor
     # Assemble various characterizing terms for index from XML
     # @param [Nokogiri::XML] doc the rightsMetadata document
     # @return [Array<String>] Strings of interest to the Solr index
-    def RightsAuth.extract_index_terms(doc)
+    def self.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
-      terms.push  'none_discover' if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
+      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
       terms.push 'world_discover' if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
       return terms if machine.nil?
 
@@ -212,20 +211,20 @@ module Dor
         terms.push 'group|stanford'
         terms.push 'group|stanford_with_rule' if machine.at_xpath("./group[@rule and #{CONTAINS_STANFORD_XPATH}]")
       elsif machine.at_xpath('./group')
-        terms.push "group|#{machine.at_xpath("./group").value.downcase}"
+        terms.push "group|#{machine.at_xpath('./group').value.downcase}"
       end
 
       if machine.at_xpath('./none')
         terms.push 'none_read'
       elsif machine.at_xpath('./world')
         terms.push 'world_read'
-        terms.push "world|#{machine.at_xpath("./world/@rule").value.downcase}" if machine.at_xpath('./world/@rule')
+        terms.push "world|#{machine.at_xpath('./world/@rule').value.downcase}" if machine.at_xpath('./world/@rule')
       end
 
       # now some statistical generation
-      names = machine.element_children.collect { |node| node.name }
-      kidcount = names.each_with_object(Hash.new(0)){ |word, counts| counts[word] += 1 }
-      countphrase = kidcount.sort.collect{ | k, v | "#{k}#{v}" }.join('|')
+      names = machine.element_children.collect(&:name)
+      kidcount = names.each_with_object(Hash.new(0)) { |word, counts| counts[word] += 1 }
+      countphrase = kidcount.sort.collect { |k, v| "#{k}#{v}" }.join('|')
       terms.push 'profile:' + countphrase unless countphrase.empty?
 
       filemachines = doc.xpath("//rightsMetadata/access[@type='read' and file]/machine")
@@ -251,7 +250,7 @@ module Dor
     #   :errors  => [...],   # known error cases
     #   :terms   => [...]    # array of non-error characterizations and stats strings
     # }
-    def RightsAuth.extract_access_rights(doc)
+    def self.extract_access_rights(doc)
       errors = validate_lite(doc)
       stuff = {
         :primary => nil,
@@ -287,7 +286,7 @@ module Dor
     # @param [String|Nokogiri::XML::Document] xml rightsMetadata xml that will be parsed to build a RightsAuth object
     # @param [Boolean] forindex, flag for requesting index_elements be parsed
     # @return [Dor::RightsAuth] object created after parsing rightsMetadata xml
-    def RightsAuth.parse(xml, forindex=false)
+    def self.parse(xml, forindex = false)
       rights = Dor::RightsAuth.new
       rights.obj_lvl = EntityRights.new
       rights.obj_lvl.world = Rights.new
