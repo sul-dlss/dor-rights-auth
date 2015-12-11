@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
+$LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'dor-rights-auth'
-  s.version     = '1.0.1'
+  s.version     = '1.0.2'
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Willy Mene']
-  s.email       = ['wmene@stanford.edu']
+  s.authors     = ['Willy Mene', 'Joe Atzberger']
+  s.email       = ['wmene@stanford.edu', 'atz@stanford.edu']
   s.summary     = 'Parses rightsMetadata xml into a useable object'
   s.description = 'Parses rightsMetadata xml into a useable object'
 
