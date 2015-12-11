@@ -172,9 +172,7 @@ module Dor
     # @param [Nokogiri::XML] doc the rightsMetadata document
     # @return [Array]        list of things that are wrong with it
     def RightsAuth.validate_lite(doc)
-      if doc.nil? || doc.at_xpath('//rightsMetadata').nil?
-          return ['no_rightsMetadata']
-      end
+      return ['no_rightsMetadata'] if doc.nil? || doc.at_xpath('//rightsMetadata').nil?
       errors = []
       maindiscover = doc.at_xpath("//rightsMetadata/access[@type='discover' and not(file)]")
       mainread     = doc.at_xpath("//rightsMetadata/access[@type='read'     and not(file)]")
@@ -199,7 +197,7 @@ module Dor
 
     # Assemble various characterizing terms for index from XML
     # @param [Nokogiri::XML] doc the rightsMetadata document
-    # @return [Array] Strings of interest to the Solr index
+    # @return [Array<String>] Strings of interest to the Solr index
     def RightsAuth.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
@@ -210,26 +208,24 @@ module Dor
       terms.push 'has_group_rights' if machine.at_xpath('./group')
       terms.push 'has_rule' if machine.at_xpath('.//@rule')
 
-      if machine.at_xpath("./group[not(@rule) and #{CONTAINS_STANFORD_XPATH}]")
+      if machine.at_xpath("./group[#{CONTAINS_STANFORD_XPATH}]")
         terms.push 'group|stanford'
-      elsif machine.at_xpath("./group[@rule and #{CONTAINS_STANFORD_XPATH}]")
-        terms.push 'group|stanford_with_rule'
+        terms.push 'group|stanford_with_rule' if machine.at_xpath("./group[@rule and #{CONTAINS_STANFORD_XPATH}]")
       elsif machine.at_xpath('./group')
         terms.push "group|#{machine.at_xpath("./group").value.downcase}"
       end
 
       if machine.at_xpath('./none')
         terms.push 'none_read'
-      elsif machine.at_xpath('./world[not(@rule)]')
+      elsif machine.at_xpath('./world')
         terms.push 'world_read'
-      elsif machine.at_xpath('./world/@rule')
-        terms.push "world|#{machine.at_xpath("./world/@rule").value.downcase}"
+        terms.push "world|#{machine.at_xpath("./world/@rule").value.downcase}" if machine.at_xpath('./world/@rule')
       end
 
       # now some statistical generation
       names = machine.element_children.collect { |node| node.name }
-      kidcount = names.each_with_object(Hash.new(0)){ |word,counts| counts[word] += 1 }
-      countphrase = kidcount.sort.collect{|k,v| "#{k}#{v}"}.join('|')
+      kidcount = names.each_with_object(Hash.new(0)){ |word, counts| counts[word] += 1 }
+      countphrase = kidcount.sort.collect{ | k, v | "#{k}#{v}" }.join('|')
       terms.push 'profile:' + countphrase unless countphrase.empty?
 
       filemachines = doc.xpath("//rightsMetadata/access[@type='read' and file]/machine")
@@ -237,11 +233,9 @@ module Dor
         terms.push 'has_file_rights', "file_rights_count|#{filemachines.count}"
         counts = Hash.new(0)
         filemachines.each { |filemachine|
-          filemachine.element_children.each { |node|
-            counts[node.name] += 1
-          }
+          filemachine.element_children.each { |node| counts[node.name] += 1 }
         }
-        counts.each { |k,v|
+        counts.each { |k, v|
           terms.push "file_has_#{k}", "file_rights_for_#{k}|#{v}"
         }
       end
@@ -250,8 +244,8 @@ module Dor
     end
 
     # Give the index what it needs
-    # @param [Nokogiri::XML] the rightsMetadata document
-    # @return [Hash] Strings of interest to the Solr index, including:
+    # @param [Nokogiri::XML] doc the rightsMetadata document
+    # @return [Hash{Symbol => Object}] Strings of interest to the Solr index, including:
     # {
     #   :primary => '...',   # string of foremost rights category, if determinable
     #   :errors  => [...],   # known error cases
@@ -267,10 +261,11 @@ module Dor
 
       if errors.include? 'no_rightsMetadata'
         stuff[:primary] = 'dark'
-        return stuff    # short circuit if no metadata -- no point going on
+        return stuff # short circuit if no metadata -- no point going on
       end
 
       stuff[:terms] = extract_index_terms(doc)
+      has_rule = stuff[:terms].include? 'has_rule'
 
       if stuff[:terms].include?('none_discover')
         stuff[:primary] = 'dark'
@@ -279,11 +274,11 @@ module Dor
       elsif errors.include?('no_read_machine') || stuff[:terms].include?('none_read')
         stuff[:primary] = 'citation'
       elsif stuff[:terms].include? 'world_read'
-        stuff[:primary] = 'world'
+        stuff[:primary] = has_rule ? 'world_qualified' : 'world'
       elsif stuff[:terms].include? 'group|stanford'
-        stuff[:primary] = 'stanford'
-      elsif stuff[:terms].include? 'has_rule'
-        stuff[:primary] = 'complicated'
+        stuff[:primary] = has_rule ? 'stanford_qualified' : 'stanford'
+      else # should never happen, but we might as well note it if it does
+        stuff[:primary] = has_rule ? 'UNKNOWN_qualified' : 'UNKNOWN'
       end
       stuff
     end
