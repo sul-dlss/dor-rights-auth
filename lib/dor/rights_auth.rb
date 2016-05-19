@@ -8,7 +8,7 @@ module Dor
   Rights = Struct.new(:value, :rule)
 
   # Rights for an object or File
-  EntityRights = Struct.new(:world, :group, :agent)
+  EntityRights = Struct.new(:world, :group, :agent, :location)
   # class EntityRights
   #   @world = #Rights
   #   @group {
@@ -115,6 +115,27 @@ module Dor
       [@obj_lvl.group[:stanford].value, @obj_lvl.group[:stanford].rule]
     end
 
+    # Returns whether an object-level location node exists for the passed in location, and the value of its rule attribute
+    # @param [String] location_name name of the location that is tested for access
+    # @return (see #world_rights)
+    # @example Using multiple variable assignment to read both array elements
+    #   location_exists, location_rule = rights.location_rights('spec_coll_reading_room')
+    def location_rights(location_name)
+      return [false, nil] if @obj_lvl.location[location_name].nil?
+
+      [@obj_lvl.location[location_name].value, @obj_lvl.location[location_name].rule]
+    end
+
+    # Returns whether a given file has any location restrictions and falls back to the object behavior in the absence of the file.
+    # @param [String] file_name name of the file being tested
+    # @return [Boolean] whether any location restrictions exist on the file or the object itself (in the absence of file-level rights)
+    def restricted_by_location?(file_name = nil)
+      any_file_location = @file[file_name] && @file[file_name].location.any?
+      any_object_location = @obj_lvl.location && @obj_lvl.location.any?
+
+      any_file_location || any_object_location
+    end
+
     # Returns whether an object-level agent node exists for the passed in agent, and the value of its rule attribute
     # @param [String] agent_name name of the app or thing that is tested for access
     # @return (see #world_rights)
@@ -150,6 +171,22 @@ module Dor
       return stanford_only_rights if @file[file_name].nil? || @file[file_name].group[:stanford].nil?
 
       [@file[file_name].group[:stanford].value, @file[file_name].group[:stanford].rule]
+    end
+
+    # Returns whether a file-level location-node exists, and the value of its rule attribute
+    #    If a location-node does not exist for this file, then object-level location rights are returned
+    # @param [String] file_name name of the file being tested
+    # @param [String] location_name name of the location being tested
+    # @return (see #world_rights)
+    # @example Using multiple variable assignment to read both array elements
+    #   location_exists, location_rule = rightslocation_rights_for_file('filex', 'spec_coll_reading_room')
+    def location_rights_for_file(file_name, location_name)
+      file_rights = @file[file_name]
+      return location_rights(location_name) if file_rights.nil?
+
+      return [false, nil] if file_rights.location[location_name].nil?
+
+      [file_rights.location[location_name].value, file_rights.location[location_name].rule]
     end
 
     # Returns whether a file-level agent-node exists, and the value of its rule attribute
@@ -311,6 +348,14 @@ module Dor
         rights.obj_lvl.group[:stanford].value = false
       end
 
+      rights.obj_lvl.location = {}
+      doc.xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/location").each do |node|
+        r = Rights.new
+        r.value = true
+        r.rule = node['rule']
+        rights.obj_lvl.location[node.content] = r
+      end
+
       rights.obj_lvl.agent = {}
       doc.xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/agent").each do |node|
         r = Rights.new
@@ -347,6 +392,14 @@ module Dor
           world_access.value = false
         end
 
+        file_locations = {}
+        access_node.xpath('machine/location').each do |node|
+          r = Rights.new
+          r.value = true
+          r.rule = node['rule']
+          file_locations[node.content] = r
+        end
+
         file_agents = {}
         access_node.xpath('machine/agent').each do |node|
           r = Rights.new
@@ -360,6 +413,7 @@ module Dor
           file_rights.world = world_access
           file_rights.group = { :stanford => stanford_access }
           file_rights.agent = file_agents
+          file_rights.location = file_locations
 
           rights.file[f.content] = file_rights
         end
