@@ -28,6 +28,7 @@ module Dor
   #   }
   # end
 
+  # read rights_xml only once and create query-able methods for rights info
   class RightsAuth
 
     CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
