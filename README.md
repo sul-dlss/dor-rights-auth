@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/sul-dlss/dor-rights-auth.svg?branch=master)](https://travis-ci.org/sul-dlss/dor-rights-auth)
 [![Dependency Status](https://gemnasium.com/sul-dlss/dor-rights-auth.svg)](https://gemnasium.com/sul-dlss/dor-rights-auth)
+[![Gem Version](https://badge.fury.io/rb/dor-rights-auth.svg)](https://badge.fury.io/rb/dor-rights-auth)
 
 ## DOR Rights Auth
 
