@@ -31,7 +31,7 @@ module Dor
   # read rights_xml only once and create query-able methods for rights info
   class RightsAuth
 
-    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
+    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')".freeze
 
     attr_accessor :obj_lvl, :file, :embargoed, :index_elements
 
