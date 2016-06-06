@@ -28,9 +28,10 @@ module Dor
   #   }
   # end
 
+  # read rights_xml only once and create query-able methods for rights info
   class RightsAuth
 
-    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
+    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')".freeze
 
     attr_accessor :obj_lvl, :file, :embargoed, :index_elements
 
@@ -56,7 +57,8 @@ module Dor
     alias_method :public_unrestricted?, :world_unrestricted?
 
     def readable?
-      public_unrestricted? || stanford_only_unrestricted? # TODO: stanford_only or public with rule, figure out if this is still a legit method
+      # TODO: stanford_only or public with rule, figure out if this is still a legit method
+      public_unrestricted? || stanford_only_unrestricted?
     end
 
     # Returns true if the object is stanford-only readable AND has no rule attribute
@@ -115,7 +117,8 @@ module Dor
       [@obj_lvl.group[:stanford].value, @obj_lvl.group[:stanford].rule]
     end
 
-    # Returns whether an object-level location node exists for the passed in location, and the value of its rule attribute
+    # Returns whether an object-level location node exists for the passed in location, and the
+    #   value of its rule attribute
     # @param [String] location_name name of the location that is tested for access
     # @return (see #world_rights)
     # @example Using multiple variable assignment to read both array elements
@@ -126,9 +129,11 @@ module Dor
       [@obj_lvl.location[location_name].value, @obj_lvl.location[location_name].rule]
     end
 
-    # Returns whether a given file has any location restrictions and falls back to the object behavior in the absence of the file.
+    # Returns whether a given file has any location restrictions and falls back to
+    #  the object behavior in the absence of the file.
     # @param [String] file_name name of the file being tested
-    # @return [Boolean] whether any location restrictions exist on the file or the object itself (in the absence of file-level rights)
+    # @return [Boolean] whether any location restrictions exist on the file or the
+    #   object itself (in the absence of file-level rights)
     def restricted_by_location?(file_name = nil)
       any_file_location = @file[file_name] && @file[file_name].location.any?
       any_object_location = @obj_lvl.location && @obj_lvl.location.any?
@@ -197,7 +202,8 @@ module Dor
     # @example Using multiple variable assignment to read both array elements
     #   agent_exists, agent_rule = rights.agent_rights_for_file('filex', 'someapp')
     def agent_rights_for_file(file_name, agent_name)
-      return agent_rights(agent_name) if @file[file_name].nil? # look at object level agent rights if the file-name is not stored
+      # look at object level agent rights if the file-name is not stored
+      return agent_rights(agent_name) if @file[file_name].nil?
 
       return [false, nil] if @file[file_name].agent[agent_name].nil? # file rules exist, but not for this agent
 
@@ -340,9 +346,10 @@ module Dor
       rights.obj_lvl.group  = { :stanford => Rights.new }
       rights.index_elements = extract_access_rights(doc) if forindex
 
-      if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]")
+      xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
+      if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true
-        rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
+        rule = doc.at_xpath("#{xpath}/@rule")
         rights.obj_lvl.group[:stanford].rule = rule.value if rule
       else
         rights.obj_lvl.group[:stanford].value = false
