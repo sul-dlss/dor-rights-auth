@@ -71,7 +71,7 @@ describe Dor::RightsAuth do
       </objectType>
       EOXML
 
-      expect { Dor::RightsAuth.parse rights }.to raise_error(ArgumentError, 'argument out of range')
+      expect { Dor::RightsAuth.parse rights }.to raise_error(ArgumentError, /rgument out of range/)
     end
 
     it 'returns false if the embargo date has passed' do
