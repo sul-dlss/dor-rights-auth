@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sul-dlss/dor-rights-auth.svg?branch=master)](https://travis-ci.org/sul-dlss/dor-rights-auth)
+[![Coverage Status](https://coveralls.io/repos/github/sul-dlss/dor-rights-auth/badge.svg?branch=master)](https://coveralls.io/github/sul-dlss/dor-rights-auth?branch=master)
 [![Dependency Status](https://gemnasium.com/sul-dlss/dor-rights-auth.svg)](https://gemnasium.com/sul-dlss/dor-rights-auth)
 [![Gem Version](https://badge.fury.io/rb/dor-rights-auth.svg)](https://badge.fury.io/rb/dor-rights-auth)
 
