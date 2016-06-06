@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 3.0'
   s.add_development_dependency 'coveralls'
+  s.add_development_dependency 'codeclimate-test-reporter'
   s.add_development_dependency 'yard'
 
   s.files        = Dir.glob('lib/**/*')
