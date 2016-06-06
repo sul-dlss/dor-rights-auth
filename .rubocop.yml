@@ -16,3 +16,6 @@ Metrics/LineLength:
 Style/Documentation:
   Exclude:
     - 'spec/**/*'
+
+Style/StringLiterals:
+  Enabled: false
