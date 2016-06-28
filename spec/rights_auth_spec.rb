@@ -358,6 +358,75 @@ describe Dor::RightsAuth do
           expect(rights).to be_restricted_by_location('a-doc-that-is-not-there.doc')
         end
       end
+
+      context 'OR stanford' do
+        context 'multiple <access> elements' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'returns that the item is stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted
+          end
+          it 'returns that the item is location restricted' do
+            expect(rights).to be_restricted_by_location('spec')
+          end
+        end
+        context 'single <access>, multiple <machine> elements' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'returns that the item is stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted
+          end
+          it 'returns that the item is location restricted' do
+            expect(rights).to be_restricted_by_location('spec')
+          end
+        end
+        context 'single <access>, single <machine> element' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <machine>
+                    <group>stanford</group>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'returns that the item is stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted
+          end
+          it 'returns that the item is location restricted' do
+            expect(rights).to be_restricted_by_location('spec')
+          end
+        end
+      end
     end
 
     context 'file level' do
@@ -395,6 +464,77 @@ describe Dor::RightsAuth do
       describe '#restricted_by_location?' do
         it 'is true when the given file has a location restriction' do
           expect(rights).to be_restricted_by_location('location-protected.doc')
+        end
+      end
+
+      context 'OR stanford' do
+        context 'multiple <access> elements' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <file>location-or-stanford-protected.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <file>location-or-stanford-protected.doc</file>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'file is restricted per second access block only' do
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
+            expect(rights).not_to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
+          end
+        end
+        context 'single <access>, multiple <machine> elements' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <file>location-or-stanford-protected.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                  </machine>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'file is stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
+          end
+          it 'file is location restricted' do
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
+          end
+        end
+        context 'single <access>, single <machine> element' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <file>location-or-stanford-protected.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'file is stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
+          end
+          it 'file is location restricted' do
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
+          end
         end
       end
     end
@@ -450,6 +590,7 @@ describe Dor::RightsAuth do
 
     it 'returns true if a file has stanford-only read access' do
       expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
+      expect(@r).to be_stanford_only_unrestricted_file('interviews2.doc')
     end
 
     it 'returns the value of object level #stanford_only_unrestricted? if the queried file is not listed' do
