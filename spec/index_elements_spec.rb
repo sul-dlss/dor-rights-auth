@@ -163,7 +163,7 @@ describe Dor::RightsAuth do
       i = r.index_elements
       expect(i).to be
       expect(i[:errors] ).to be_empty
-      expect(i[:primary]).to eq 'stanford_qualified'
+      expect(i[:primary]).to eq 'access_restricted_qualified'
       expect(i[:terms]  ).to include('has_rule', 'has_group_rights', 'group|stanford_with_rule', 'world_discover')
       expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
     end

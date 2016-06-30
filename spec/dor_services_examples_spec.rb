@@ -28,6 +28,6 @@ describe Dor::RightsAuth do
     r = Dor::RightsAuth.parse(xml, true)
     expect(r).to be_stanford_only_unrestricted
     expect(r).not_to be_public_unrestricted
-    expect(r.index_elements).to include :primary => 'stanford'
+    expect(r.index_elements).to include :primary => 'access_restricted'
   end
 end

@@ -293,7 +293,7 @@ module Dor
     #   :errors  => [...],   # known error cases
     #   :terms   => [...]    # array of non-error characterizations and stats strings
     # }
-    def self.extract_access_rights(doc)
+    def self.init_index_elements(doc)
       errors = validate_lite(doc)
       stuff = {
         :primary => nil,
@@ -307,22 +307,30 @@ module Dor
       end
 
       stuff[:terms] = extract_index_terms(doc)
-      has_rule = stuff[:terms].include? 'has_rule'
+      stuff[:primary] = primary_access_rights stuff[:terms], errors
 
-      if stuff[:terms].include?('none_discover')
-        stuff[:primary] = 'dark'
-      elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
-        stuff[:primary] = 'dark'
-      elsif errors.include?('no_read_machine') || stuff[:terms].include?('none_read')
-        stuff[:primary] = 'citation'
-      elsif stuff[:terms].include? 'world_read'
-        stuff[:primary] = has_rule ? 'world_qualified' : 'world'
-      elsif stuff[:terms].include? 'group|stanford'
-        stuff[:primary] = has_rule ? 'stanford_qualified' : 'stanford'
-      else # should never happen, but we might as well note it if it does
-        stuff[:primary] = has_rule ? 'UNKNOWN_qualified' : 'UNKNOWN'
-      end
       stuff
+    end
+
+    # "primary" access is a somewhat crude way of summarizing a whole
+    # object (possibly with many disparate interacting rights types)
+    # using one rights label.  but it should still do a good job of capturing
+    # rights that make more sense at the object level (e.g. 'dark').
+    def self.primary_access_rights(index_terms, errors)
+      has_rule = index_terms.include? 'has_rule'
+      if index_terms.include?('none_discover')
+        'dark'
+      elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
+        'dark'
+      elsif errors.include?('no_read_machine') || index_terms.include?('none_read')
+        'citation'
+      elsif index_terms.include? 'world_read'
+        has_rule ? 'world_qualified' : 'world'
+      elsif index_terms.include?('has_group_rights') || index_terms.include?('location') || index_terms.include?('agent')
+        has_rule ? 'access_restricted_qualified' : 'access_restricted'
+      else # should never happen, but we might as well note it if it does
+        has_rule ? 'UNKNOWN_qualified' : 'UNKNOWN'
+      end
     end
 
     # Create a Dor::RightsAuth object from xml
@@ -344,7 +352,7 @@ module Dor
       end
 
       rights.obj_lvl.group  = { :stanford => Rights.new }
-      rights.index_elements = extract_access_rights(doc) if forindex
+      rights.index_elements = init_index_elements(doc) if forindex
 
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
