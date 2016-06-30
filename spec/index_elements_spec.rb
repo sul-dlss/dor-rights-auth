@@ -237,8 +237,9 @@ describe Dor::RightsAuth do
     end
   end
 
-  describe '#agent_rights' do
-    rights = <<-EOXML
+  describe 'multiple orthogonal rights types' do
+    let(:rights) do
+    <<-EOXML
     <objectType>
       <rightsMetadata>
         <access type="discover"><machine><world/></machine></access>    <!-- our most common "discover" -->
@@ -275,12 +276,18 @@ describe Dor::RightsAuth do
       </rightsMetadata>
     </objectType>
     EOXML
-    r = Dor::RightsAuth.parse(rights, true)
-    it 'handles agent rights at multiple levels' do
-      i = r.index_elements
+    end
+    let(:r) { Dor::RightsAuth.parse(rights, true) }
+    let(:i) { r.index_elements }
+
+    it 'exists and has no errors' do
       expect(i).to be
       expect(i[:errors] ).to be_empty
+    end
+    it 'has the expected primary value' do
       expect(i[:primary]).to eq 'world_qualified'
+    end
+    it 'has the expected terms' do
       [ 'world_read', 'world_discover', 'has_rule', 'has_file_rights',
         'file_has_group', 'file_has_world', 'file_has_agent',
         'file_rights_count|3', 'file_rights_for_agent|2',
