@@ -36,7 +36,9 @@ describe Dor::RightsAuth do
       end
 
       context 'OR stanford' do
-        context 'multiple <access> elements' do
+        # see (https://consul.stanford.edu/display/chimera/Rights+metadata+--+the+rightsMetadata+datastream)
+        #   for more information
+        context 'multiple <access> elements (NOT kosher - documenting current behavior)' do
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
@@ -60,7 +62,7 @@ describe Dor::RightsAuth do
             expect(rights).to be_restricted_by_location('spec')
           end
         end
-        context 'single <access>, multiple <machine> elements' do
+        context 'single <access>, multiple <machine> elements (preferred way)' do
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
@@ -82,7 +84,8 @@ describe Dor::RightsAuth do
             expect(rights).to be_restricted_by_location('spec')
           end
         end
-        context 'single <access>, single <machine> element' do
+        context 'single <access>, single <machine> element (NOT kosher - documenting current behavior)' do
+          # this *may* be how we do "AND" in the future (distinguish it from "OR")
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
@@ -141,7 +144,9 @@ describe Dor::RightsAuth do
       end
 
       context 'OR stanford' do
-        context 'multiple <access> elements' do
+        # see (https://consul.stanford.edu/display/chimera/Rights+metadata+--+the+rightsMetadata+datastream)
+        #   for more information
+        context 'multiple <access> elements (NOT kosher - documenting current behavior)' do
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
@@ -165,7 +170,7 @@ describe Dor::RightsAuth do
             expect(rights).not_to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
           end
         end
-        context 'single <access>, multiple <machine> elements' do
+        context 'single <access>, multiple <machine> elements (preferred way)' do
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
@@ -188,7 +193,8 @@ describe Dor::RightsAuth do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
           end
         end
-        context 'single <access>, single <machine> element' do
+        context 'single <access>, single <machine> element (NOT kosher - documenting current behavior)' do
+          # this *may* be how we do "AND" in the future (distinguish it from "OR")
           let(:rights_xml) do
             <<-XML
               <rightsMetadata>
