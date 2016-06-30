@@ -88,7 +88,7 @@ describe Dor::RightsAuth do
   end
 
   describe '#index_elements' do
-    it 'Double dark double none' do
+    it 'Double dark double none, dark file' do
       rights = <<-EOXML
       <objectType>
         <rightsMetadata>
@@ -102,6 +102,12 @@ describe Dor::RightsAuth do
               <none/>
             </machine>
           </access>
+          <access type="read">
+            <file>dark_file</file>
+            <machine>
+              <none/>
+            </machine>
+          </access>
         </rightsMetadata>
       </objectType>
       EOXML
@@ -110,7 +116,7 @@ describe Dor::RightsAuth do
       expect(i).to be
       expect(i[:errors] ).to be_empty
       expect(i[:primary]).to eq 'dark'
-      expect(i[:terms]  ).to include('none_read', 'none_discover')
+      expect(i[:terms]  ).to include('none_read', 'none_discover', 'none_read_file')
       expect(i[:terms]  ).not_to include('has_rule', 'world_read', 'world_discover')
     end
 
@@ -298,6 +304,38 @@ describe Dor::RightsAuth do
         expect(i[:terms]).to include(x)
       }
       expect(i[:terms]).not_to include('none_read', 'none_discover')
+    end
+    it 'has the expected world-specific values' do
+      expect(i[:file_world_qualified]).to eq [{ :rule => 'no-download' }] # all the files are no-download
+      expect(i[:obj_world_qualified]).to eq [{ :rule => nil }] # the object is world read with no rule
+    end
+    it 'has the expected location-specific values' do
+      expect(i[:file_locations_qualified]).to eq [
+        { :location => 'reading_rm', :rule => nil }, { :location => 'new_reading_rm', :rule => 'new-rule' },
+        { :location => 'reading_rm', :rule => 'no-download' }
+      ]
+      expect(i[:obj_locations_qualified]).to eq []
+      expect(i[:file_locations]).to eq ['reading_rm', 'new_reading_rm']
+      expect(i[:obj_locations]).to eq []
+    end
+    it 'has the expected agent-specific values' do
+      expect(i[:file_agents_qualified]).to eq [
+        { :agent => 'someapp1', :rule => nil }, { :agent => 'someapp2', :rule => 'somerule' }
+      ]
+      expect(i[:obj_agents_qualified]).to eq [{ :agent => 'adminapp', :rule => 'objlevel' }]
+      expect(i[:file_agents]).to eq ['someapp1', 'someapp2']
+      expect(i[:obj_agents]).to eq ['adminapp']
+    end
+    it 'has the expected group-specific values' do
+      # stanford's the only group we specifically parse out for rights logic or
+      # indexing, so we don't expect "other" to show up in index_elements, even
+      # though it's in the XML.
+      expect(i[:file_groups_qualified]).to eq [
+        { :group => 'stanford', :rule => nil }, { :group => 'stanford', :rule => 'no-download' }
+      ]
+      expect(i[:obj_groups_qualified]).to eq []
+      expect(i[:file_groups]).to eq ['stanford']
+      expect(i[:obj_groups]).to eq []
     end
   end
 
