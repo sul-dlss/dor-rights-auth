@@ -256,6 +256,7 @@ describe Dor::RightsAuth do
             <world rule="no-download"/>
             <agent>someapp1</agent>
             <agent rule="somerule">someapp2</agent>
+            <location>reading_rm</location>
           </machine>
         </access>
         <access type="read">
@@ -264,13 +265,15 @@ describe Dor::RightsAuth do
             <group>other</group>
             <group>stanford</group>
             <world rule="no-download"/>
+            <location rule="new-rule">new_reading_rm</location>
           </machine>
         </access>
         <access type="read">
           <file>last.doc</file>
           <machine>
-            <group>stanford</group>
+            <group rule="no-download">stanford</group>
             <world rule="no-download"/>
+            <location rule="no-download">reading_rm</location>
           </machine>
         </access>
       </rightsMetadata>
