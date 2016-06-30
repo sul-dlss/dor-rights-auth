@@ -71,26 +71,58 @@ describe Dor::RightsAuth do
       expect(r).to_not be_stanford_only_unrestricted
     end
 
-    it 'returns false when there is file-level stanford-only access but object-level world access' do
-      xml = <<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <file>interviews1.doc</file>
-            <file>interviews2.doc</file>
-            <machine>
-              <group>stanford</group>
-            </machine>
-          </access>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      rights = Dor::RightsAuth.parse xml
-      expect(rights).not_to be_stanford_only_unrestricted
+    context 'file level' do
+      context 'stanford-only access but object-level world access' do
+        context 'multiple <file> elements inside single <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_unrestricted
+          end
+        end
+        context 'each <file> element inside own <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_unrestricted
+          end
+        end
+      end
     end
   end
 

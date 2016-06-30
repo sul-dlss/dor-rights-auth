@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe Dor::RightsAuth do
-
   describe 'location based auth' do
-
     let(:rights) { described_class.parse(rights_xml) }
 
     context 'object level' do
@@ -213,6 +211,67 @@ describe Dor::RightsAuth do
           end
           it 'file is location restricted' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
+          end
+        end
+
+        context 'multiple <file> elements inside single <access> element' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <file>location-or-stanford-protected1.doc</file>
+                  <file>location-or-stanford-protected2.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                  </machine>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'files are stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected1.doc')
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected2.doc')
+          end
+          it 'files are location restricted' do
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected1.doc')
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected2.doc')
+          end
+        end
+        context 'each <file> element inside own <access> element' do
+          let(:rights_xml) do
+            <<-XML
+              <rightsMetadata>
+                <access type="read">
+                  <file>location-or-stanford-protected1.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                  </machine>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+                <access type="read">
+                  <file>location-or-stanford-protected2.doc</file>
+                  <machine>
+                    <group>Stanford</group>
+                  </machine>
+                  <machine>
+                    <location>spec</location>
+                  </machine>
+                </access>
+              </rightsMetadata>
+            XML
+          end
+          it 'files are stanford restricted' do
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected1.doc')
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected2.doc')
+          end
+          it 'files are location restricted' do
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected1.doc')
+            expect(rights).to be_restricted_by_location('location-or-stanford-protected2.doc')
           end
         end
       end
