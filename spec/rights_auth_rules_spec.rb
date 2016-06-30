@@ -74,7 +74,7 @@ describe Dor::RightsAuth do
   describe '#world_rights_for_file and #stanford_only_rights_for_file' do
     context 'single <machine> element' do
       context 'single file' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
@@ -119,7 +119,7 @@ describe Dor::RightsAuth do
         end
       end
       context 'multiple <file> elements inside single <access> element' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
@@ -171,7 +171,7 @@ describe Dor::RightsAuth do
         end
       end
       context 'each <file> element inside own <access> element' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
@@ -231,7 +231,7 @@ describe Dor::RightsAuth do
     end
     context 'multiple <machine> elements inside <access> element' do
       context 'single file' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
@@ -278,7 +278,7 @@ describe Dor::RightsAuth do
         end
       end
       context 'multiple <file> elements inside single <access> element' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
@@ -332,7 +332,7 @@ describe Dor::RightsAuth do
         end
       end
       context 'each <file> element inside own <access> element' do
-        let (:dor_rights_auth) do
+        let(:dor_rights_auth) do
           rights = <<-EOXML
           <objectType>
             <rightsMetadata>
