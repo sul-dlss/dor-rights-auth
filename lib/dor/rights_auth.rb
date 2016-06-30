@@ -44,7 +44,7 @@ module Dor
 
     # Returns true if the object is under embargo.
     # @return [Boolean]
-    def embargoed? # rubocop:disable Style/TrivialAccessors
+    def embargoed?
       @embargoed
     end
 
