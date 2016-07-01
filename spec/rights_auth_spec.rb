@@ -24,7 +24,7 @@ describe Dor::RightsAuth do
 
   describe '#stanford_only_unrestricted?' do
 
-    it 'returns true if the object has stanford-only read access without a rule attribute' do
+    it 'true if the object has stanford-only read access without a rule attribute' do
       r1 = Dor::RightsAuth.parse @stanford_xml
       r2 = Dor::RightsAuth.parse "<some><other><junk>#{@stanford_xml}</junk></other></some>"
       r3 = Dor::RightsAuth.parse Nokogiri::XML(@stanford_xml)
@@ -34,7 +34,7 @@ describe Dor::RightsAuth do
       }
     end
 
-    it "returns true if capital S is used for 'Stanford'" do
+    it "true if capital S is used for 'Stanford'" do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -50,13 +50,13 @@ describe Dor::RightsAuth do
       expect(r).not_to be_public_unrestricted
     end
 
-    it 'returns false if the object does not have stanford-only read access' do
+    it 'false if the object does not have stanford-only read access' do
       r = Dor::RightsAuth.parse @world_xml
       expect(r).not_to be_stanford_only_unrestricted
       expect(r).to be_public_unrestricted
     end
 
-    it 'returns false if the object has stanford-only read access with a rule attribute' do
+    it 'false if the object has stanford-only read access with a rule attribute' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -71,42 +71,74 @@ describe Dor::RightsAuth do
       expect(r).to_not be_stanford_only_unrestricted
     end
 
-    it 'returns false when there is file-level stanford-only access but object-level world access' do
-      xml = <<-EOXML
-        <rightsMetadata>
-          <access type="read">
-            <file>interviews1.doc</file>
-            <file>interviews2.doc</file>
-            <machine>
-              <group>stanford</group>
-            </machine>
-          </access>
-          <access type="read">
-            <machine>
-              <world />
-            </machine>
-          </access>
-        </rightsMetadata>
-      EOXML
-
-      rights = Dor::RightsAuth.parse xml
-      expect(rights).not_to be_stanford_only_unrestricted
+    context 'file level' do
+      context 'stanford-only access but object-level world access' do
+        context 'multiple <file> elements inside single <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_unrestricted
+          end
+        end
+        context 'each <file> element inside own <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_unrestricted
+          end
+        end
+      end
     end
   end
 
   describe '#public_unrestricted?' do
 
-    it 'returns true if this object has world readable visibility' do
+    it 'true if this object has world readable visibility' do
       r = Dor::RightsAuth.parse @world_xml
       expect(r).to be_public_unrestricted
     end
 
-    it 'returns false if there is no machine readable world visibility' do
+    it 'false if there is no machine readable world visibility' do
       r = Dor::RightsAuth.parse @stanford_xml
       expect(r).not_to be_public_unrestricted
     end
 
-    it 'returns false if there is no machine/world access WITHOUT a rule attribute' do
+    it 'false if there is no machine/world access WITHOUT a rule attribute' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -121,7 +153,7 @@ describe Dor::RightsAuth do
       expect(r).not_to be_public_unrestricted
     end
 
-    it 'returns false if the rights metadata does not contain a read block' do
+    it 'false if the rights metadata does not contain a read block' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="discover">
@@ -162,12 +194,12 @@ describe Dor::RightsAuth do
 
   describe '#readable?' do
 
-    it 'returns true if the rights metadata contains a read block' do
+    it 'true if the rights metadata contains a read block' do
       r = Dor::RightsAuth.parse @world_xml
       expect(r).to be_readable
     end
 
-    it 'returns false if the rights metadata does not contain a read block' do
+    it 'false if the rights metadata does not contain a read block' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="discover">
@@ -182,7 +214,7 @@ describe Dor::RightsAuth do
       expect(r).not_to be_readable
     end
 
-    it "returns false if there's only a read access block with files, but no object level read access" do
+    it "false if there's only a read access block with files, but no object level read access" do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="discover">
@@ -273,7 +305,7 @@ describe Dor::RightsAuth do
   end
 
   describe '#allowed_read_agent?' do
-    it 'returns true if the passed in user is an allowed read agent' do
+    it 'true if the passed in user is an allowed read agent' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -304,7 +336,7 @@ describe Dor::RightsAuth do
       expect(r.allowed_read_agent?('app2')).to be
     end
 
-    it 'returns false if the passed in user is NOT an allowed read agent' do
+    it 'false if the passed in user is NOT an allowed read agent' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -319,104 +351,11 @@ describe Dor::RightsAuth do
       expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
 
-    it 'returns false if there is no read agent in rightsMetadata' do
+    it 'false if there is no read agent in rightsMetadata' do
       r = Dor::RightsAuth.parse @world_xml
       expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
 
-  end
-
-  describe 'location based auth' do
-    let(:rights) { described_class.parse(rights_xml) }
-    context 'object level' do
-      let(:rights_xml) do
-        <<-XML
-          <rightsMetadata>
-            <access type="read">
-              <machine>
-                <location>spec</location>
-              </machine>
-            </access>
-          </rightsMetadata>
-        XML
-      end
-
-      it 'returns true if there is a matching location in the rights metadata' do
-        value, rule = rights.location_rights('spec')
-        expect(value).to be true
-        expect(rule).to be_nil
-      end
-
-      it 'returns false if there is no matching location in the rights metadata' do
-        value, rule = rights.location_rights('not-a-real-location')
-        expect(value).to be false
-        expect(rule).to be_nil
-      end
-
-      describe '#restricted_by_location?' do
-        it 'is true even when the given file has a no location restriction' do
-          expect(rights).to be_restricted_by_location('a-doc-that-is-not-there.doc')
-        end
-      end
-    end
-
-    context 'file level' do
-      let(:rights_xml) do
-        <<-XML
-          <rightsMetadata>
-            <access type="read">
-              <file>location-protected.doc</file>
-              <machine>
-                <location>spec</location>
-              </machine>
-            </access>
-          </rightsMetadata>
-        XML
-      end
-
-      it 'returns true if there is a matching location for the given file in the rights metadata' do
-        value, rule = rights.location_rights_for_file('location-protected.doc', 'spec')
-        expect(value).to be true
-        expect(rule).to be_nil
-      end
-
-      it 'returns false if there is no matching location for the given file in the rights metadata' do
-        value, rule = rights.location_rights_for_file('unkown.doc', 'spec')
-        expect(value).to be false
-        expect(rule).to be_nil
-      end
-
-      it 'returns false when there is a matching file but the location does not exist' do
-        value, rule = rights.location_rights_for_file('location-protected.doc', 'not-a-real-location')
-        expect(value).to be false
-        expect(rule).to be_nil
-      end
-
-      describe '#restricted_by_location?' do
-        it 'is true when the given file has a location restriction' do
-          expect(rights).to be_restricted_by_location('location-protected.doc')
-        end
-      end
-    end
-
-    context 'rules' do
-      let(:rights_xml) do
-        <<-XML
-          <rightsMetadata>
-            <access type="read">
-              <machine>
-                <location rule='no-download'>spec</location>
-              </machine>
-            </access>
-          </rightsMetadata>
-        XML
-      end
-
-      it 'returns the rule attribute as part of the rights' do
-        _, rule = rights.location_rights('spec')
-        expect(rule).to eq 'no-download'
-      end
-    end
   end
 
   describe '#stanford_only_unrestricted_file?' do
@@ -448,8 +387,9 @@ describe Dor::RightsAuth do
       @r = Dor::RightsAuth.parse rights
     end
 
-    it 'returns true if a file has stanford-only read access' do
+    it 'true if a file has stanford-only read access' do
       expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
+      expect(@r).to be_stanford_only_unrestricted_file('interviews2.doc')
     end
 
     it 'returns the value of object level #stanford_only_unrestricted? if the queried file is not listed' do
@@ -457,7 +397,7 @@ describe Dor::RightsAuth do
       expect(@r.stanford_only_unrestricted_file?('object-level-rights.xml')).to eq @r.stanford_only_unrestricted?
     end
 
-    it 'returns false if a file is stanford-only AND has a rule attribute' do
+    it 'false if a file is stanford-only AND has a rule attribute' do
       expect(@r).not_to be_stanford_only_unrestricted_file('su-only-no-download.doc')
     end
   end
@@ -487,7 +427,7 @@ describe Dor::RightsAuth do
         @r = Dor::RightsAuth.parse rights
       end
 
-      it 'returns true if the file has world unrestricted read access' do
+      it 'true if the file has world unrestricted read access' do
         expect(@r).to be_public_unrestricted_file('interviews2.doc')
       end
 
