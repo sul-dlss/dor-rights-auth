@@ -245,46 +245,46 @@ describe Dor::RightsAuth do
 
   describe 'multiple orthogonal rights types' do
     let(:rights) do
-    <<-EOXML
-    <objectType>
-      <rightsMetadata>
-        <access type="discover"><machine><world/></machine></access>    <!-- our most common "discover" -->
-        <access type="read">
-          <machine>
-            <world/>
-            <agent rule="objlevel">adminapp</agent>
-          </machine>
-        </access>
-        <access type="read">
-          <file>interview.doc</file>
-          <machine>
-            <group>stanford</group>
-            <world rule="no-download"/>
-            <agent>someapp1</agent>
-            <agent rule="somerule">someapp2</agent>
-            <location>reading_rm</location>
-          </machine>
-        </access>
-        <access type="read">
-          <file>other.doc</file>
-          <machine>
-            <group>other</group>
-            <group>stanford</group>
-            <world rule="no-download"/>
-            <location rule="new-rule">new_reading_rm</location>
-          </machine>
-        </access>
-        <access type="read">
-          <file>last.doc</file>
-          <machine>
-            <group rule="no-download">stanford</group>
-            <world rule="no-download"/>
-            <location rule="no-download">reading_rm</location>
-          </machine>
-        </access>
-      </rightsMetadata>
-    </objectType>
-    EOXML
+      <<-EOXML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover"><machine><world/></machine></access>    <!-- our most common "discover" -->
+          <access type="read">
+            <machine>
+              <world/>
+              <agent rule="objlevel">adminapp</agent>
+            </machine>
+          </access>
+          <access type="read">
+            <file>interview.doc</file>
+            <machine>
+              <group>stanford</group>
+              <world rule="no-download"/>
+              <agent>someapp1</agent>
+              <agent rule="somerule">someapp2</agent>
+              <location>reading_rm</location>
+            </machine>
+          </access>
+          <access type="read">
+            <file>other.doc</file>
+            <machine>
+              <group>other</group>
+              <group>stanford</group>
+              <world rule="no-download"/>
+              <location rule="new-rule">new_reading_rm</location>
+            </machine>
+          </access>
+          <access type="read">
+            <file>last.doc</file>
+            <machine>
+              <group rule="no-download">stanford</group>
+              <world rule="no-download"/>
+              <location rule="no-download">reading_rm</location>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      EOXML
     end
     let(:r) { Dor::RightsAuth.parse(rights, true) }
     let(:i) { r.index_elements }
