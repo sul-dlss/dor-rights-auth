@@ -257,6 +257,17 @@ module Dor
         terms.push "group|#{machine.at_xpath('./group').value.downcase}"
       end
 
+      ['location', 'agent'].each do |access_type|
+        if machine.at_xpath("./#{access_type}")
+          terms.push access_type
+          terms.push "#{access_type}_with_rule" if machine.at_xpath("./#{access_type}")
+        end
+      end
+
+      if doc.at_xpath("//rightsMetadata/access[@type='read' and file]/machine/none")
+        terms.push "none_read_file"
+      end
+
       if machine.at_xpath('./none')
         terms.push 'none_read'
       elsif machine.at_xpath('./world')
@@ -293,12 +304,26 @@ module Dor
     #   :errors  => [...],   # known error cases
     #   :terms   => [...]    # array of non-error characterizations and stats strings
     # }
-    def self.extract_access_rights(doc)
+    def self.init_index_elements(doc)
       errors = validate_lite(doc)
       stuff = {
-        :primary => nil,
-        :errors  => errors,
-        :terms   => []
+        :primary          => nil,
+        :errors           => errors,
+        :terms            => [],
+        :obj_groups       => [],
+        :obj_locations    => [],
+        :obj_agents       => [],
+        :file_groups      => [],
+        :file_locations   => [],
+        :file_agents      => [],
+        :obj_world_qualified      => [],
+        :obj_groups_qualified     => [],
+        :obj_locations_qualified  => [],
+        :obj_agents_qualified     => [],
+        :file_world_qualified     => [],
+        :file_groups_qualified    => [],
+        :file_locations_qualified => [],
+        :file_agents_qualified    => []
       }
 
       if errors.include? 'no_rightsMetadata'
@@ -307,22 +332,31 @@ module Dor
       end
 
       stuff[:terms] = extract_index_terms(doc)
-      has_rule = stuff[:terms].include? 'has_rule'
+      stuff[:primary] = primary_access_rights stuff[:terms], errors
 
-      if stuff[:terms].include?('none_discover')
-        stuff[:primary] = 'dark'
-      elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
-        stuff[:primary] = 'dark'
-      elsif errors.include?('no_read_machine') || stuff[:terms].include?('none_read')
-        stuff[:primary] = 'citation'
-      elsif stuff[:terms].include? 'world_read'
-        stuff[:primary] = has_rule ? 'world_qualified' : 'world'
-      elsif stuff[:terms].include? 'group|stanford'
-        stuff[:primary] = has_rule ? 'stanford_qualified' : 'stanford'
-      else # should never happen, but we might as well note it if it does
-        stuff[:primary] = has_rule ? 'UNKNOWN_qualified' : 'UNKNOWN'
-      end
       stuff
+    end
+
+    # "primary" access is a somewhat crude way of summarizing a whole
+    # object (possibly with many disparate interacting rights types)
+    # using one rights label.  but it should still do a good job of capturing
+    # rights that make more sense at the object level (e.g. 'dark').
+    def self.primary_access_rights(index_terms, errors)
+      has_rule = index_terms.include? 'has_rule'
+      if index_terms.include?('none_discover')
+        'dark'
+      elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
+        'dark'
+      elsif errors.include?('no_read_machine') || index_terms.include?('none_read')
+        'citation'
+      elsif index_terms.include? 'world_read'
+        has_rule ? 'world_qualified' : 'world'
+      elsif index_terms.include?('has_group_rights') ||
+            index_terms.include?('location') || index_terms.include?('agent')
+        has_rule ? 'access_restricted_qualified' : 'access_restricted'
+      else # should never happen, but we might as well note it if it does
+        has_rule ? 'UNKNOWN_qualified' : 'UNKNOWN'
+      end
     end
 
     # Create a Dor::RightsAuth object from xml
@@ -335,22 +369,28 @@ module Dor
       rights.obj_lvl.world = Rights.new
 
       doc = xml.is_a?(Nokogiri::XML::Document) ? xml.clone : Nokogiri::XML(xml)
+
+      rights.index_elements = init_index_elements(doc) if forindex
+
       if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world")
         rights.obj_lvl.world.value = true
         rule = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/world/@rule")
         rights.obj_lvl.world.rule = rule.value if rule
+        rights.index_elements[:obj_world_qualified] << { :rule => (rule ? rule.value : nil) } if forindex
       else
         rights.obj_lvl.world.value = false
       end
 
       rights.obj_lvl.group  = { :stanford => Rights.new }
-      rights.index_elements = extract_access_rights(doc) if forindex
-
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true
         rule = doc.at_xpath("#{xpath}/@rule")
         rights.obj_lvl.group[:stanford].rule = rule.value if rule
+        if forindex
+          rights.index_elements[:obj_groups_qualified] << { :group => 'stanford', :rule => (rule ? rule.value : nil) }
+          rights.index_elements[:obj_groups] << 'stanford'
+        end
       else
         rights.obj_lvl.group[:stanford].value = false
       end
@@ -361,6 +401,10 @@ module Dor
         r.value = true
         r.rule = node['rule']
         rights.obj_lvl.location[node.content] = r
+        if forindex
+          rights.index_elements[:obj_locations_qualified] << { :location => node.content, :rule => node['rule'] }
+          rights.index_elements[:obj_locations] << node.content
+        end
       end
 
       rights.obj_lvl.agent = {}
@@ -369,6 +413,10 @@ module Dor
         r.value = true
         r.rule = node['rule']
         rights.obj_lvl.agent[node.content] = r
+        if forindex
+          rights.index_elements[:obj_agents_qualified] << { :agent => node.content, :rule => node['rule'] }
+          rights.index_elements[:obj_agents] << node.content
+        end
       end
 
       # Initialze embargo_status to false
@@ -387,6 +435,11 @@ module Dor
           stanford_access.value = true
           rule = access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
           stanford_access.rule = rule.value if rule
+          if forindex
+            rights.index_elements[:file_groups_qualified] <<
+              { :group => 'stanford', :rule => (rule ? rule.value : nil) }
+            rights.index_elements[:file_groups] << 'stanford'
+          end
         else
           stanford_access.value = false
         end
@@ -395,6 +448,7 @@ module Dor
           world_access.value = true
           rule = access_node.at_xpath('machine/world/@rule')
           world_access.rule = rule.value if rule
+          rights.index_elements[:file_world_qualified] << { :rule => (rule ? rule.value : nil) } if forindex
         else
           world_access.value = false
         end
@@ -405,6 +459,10 @@ module Dor
           r.value = true
           r.rule = node['rule']
           file_locations[node.content] = r
+          if forindex
+            rights.index_elements[:file_locations_qualified] << { :location => node.content, :rule => node['rule'] }
+            rights.index_elements[:file_locations] << node.content
+          end
         end
 
         file_agents = {}
@@ -413,6 +471,10 @@ module Dor
           r.value = true
           r.rule = node['rule']
           file_agents[node.content] = r
+          if forindex
+            rights.index_elements[:file_agents_qualified] << { :agent => node.content, :rule => node['rule'] }
+            rights.index_elements[:file_agents] << node.content
+          end
         end
 
         access_node.xpath('file').each do |f|
@@ -424,6 +486,23 @@ module Dor
 
           rights.file[f.content] = file_rights
         end
+      end
+
+      if forindex
+        [:obj_groups,
+         :obj_locations,
+         :obj_agents,
+         :file_groups,
+         :file_locations,
+         :file_agents,
+         :obj_world_qualified,
+         :obj_groups_qualified,
+         :obj_locations_qualified,
+         :obj_agents_qualified,
+         :file_world_qualified,
+         :file_groups_qualified,
+         :file_locations_qualified,
+         :file_agents_qualified].each { |index_elt| rights.index_elements[index_elt].uniq! }
       end
 
       rights
