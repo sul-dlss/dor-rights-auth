@@ -4,7 +4,7 @@ $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'dor-rights-auth'
-  s.version     = '1.1.0'
+  s.version     = '1.2.0'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Willy Mene', 'Joe Atzberger']
   s.email       = ['wmene@stanford.edu', 'atz@stanford.edu']
