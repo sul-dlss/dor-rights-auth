@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Dor::RightsAuth do
-  before(:all) do
-    @world_xml = <<-EOXML
+  let(:world_readable_xml) do
+    <<-EOXML
       <rightsMetadata>
         <access type="read">
           <machine>
@@ -11,7 +11,9 @@ describe Dor::RightsAuth do
         </access>
       </rightsMetadata>
     EOXML
-    @stanford_xml = <<-EOXML
+  end
+  let(:stanford_readable_xml) do
+    <<-EOXML
       <rightsMetadata>
         <access type="read">
           <machine>
@@ -25,9 +27,9 @@ describe Dor::RightsAuth do
   describe '#stanford_only_unrestricted?' do
 
     it 'true if the object has stanford-only read access without a rule attribute' do
-      r1 = Dor::RightsAuth.parse @stanford_xml
-      r2 = Dor::RightsAuth.parse "<some><other><junk>#{@stanford_xml}</junk></other></some>"
-      r3 = Dor::RightsAuth.parse Nokogiri::XML(@stanford_xml)
+      r1 = Dor::RightsAuth.parse stanford_readable_xml
+      r2 = Dor::RightsAuth.parse "<some><other><junk>#{stanford_readable_xml}</junk></other></some>"
+      r3 = Dor::RightsAuth.parse Nokogiri::XML(stanford_readable_xml)
       [r1, r2, r3].each{ |r|
         expect(r).to be_stanford_only_unrestricted
         expect(r).not_to be_public_unrestricted
@@ -44,14 +46,13 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-
       r = Dor::RightsAuth.parse rights
       expect(r).to be_stanford_only_unrestricted
       expect(r).not_to be_public_unrestricted
     end
 
     it 'false if the object does not have stanford-only read access' do
-      r = Dor::RightsAuth.parse @world_xml
+      r = Dor::RightsAuth.parse world_readable_xml
       expect(r).not_to be_stanford_only_unrestricted
       expect(r).to be_public_unrestricted
     end
@@ -66,7 +67,6 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-
       r = Dor::RightsAuth.parse rights
       expect(r).to_not be_stanford_only_unrestricted
     end
@@ -128,13 +128,13 @@ describe Dor::RightsAuth do
 
   describe '#public_unrestricted?' do
 
-    it 'true if this object has world readable visibility' do
-      r = Dor::RightsAuth.parse @world_xml
+    it 'true if object has world readable visibility' do
+      r = Dor::RightsAuth.parse world_readable_xml
       expect(r).to be_public_unrestricted
     end
 
     it 'false if there is no machine readable world visibility' do
-      r = Dor::RightsAuth.parse @stanford_xml
+      r = Dor::RightsAuth.parse stanford_readable_xml
       expect(r).not_to be_public_unrestricted
     end
 
@@ -163,12 +163,11 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_public_unrestricted
     end
 
-    it 'returns false when there is file-level world access but object-level stanford-only access' do
+    it 'false when there is file-level world access but object-level stanford-only access' do
       rights = <<-EOXML
         <rightsMetadata>
           <access type="read">
@@ -195,7 +194,7 @@ describe Dor::RightsAuth do
   describe '#readable?' do
 
     it 'true if the rights metadata contains a read block' do
-      r = Dor::RightsAuth.parse @world_xml
+      r = Dor::RightsAuth.parse world_readable_xml
       expect(r).to be_readable
     end
 
@@ -209,7 +208,6 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_readable
     end
@@ -231,11 +229,9 @@ describe Dor::RightsAuth do
           <!-- No object level read access block -->
         </rightsMetadata>
       EOXML
-
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_readable
     end
-
   end
 
   shared_examples 'dark scenarios' do
@@ -352,16 +348,15 @@ describe Dor::RightsAuth do
     end
 
     it 'false if there is no read agent in rightsMetadata' do
-      r = Dor::RightsAuth.parse @world_xml
+      r = Dor::RightsAuth.parse world_readable_xml
       expect(r.allowed_read_agent?('another-app-name')).not_to be
     end
 
   end
 
   describe '#stanford_only_unrestricted_file?' do
-
-    before(:all) do
-      rights = <<-EOXML
+    let(:dra) do
+      Dor::RightsAuth.parse <<-EOXML
         <rightsMetadata>
           <access type="read">
             <file>interviews1.doc</file>
@@ -383,22 +378,20 @@ describe Dor::RightsAuth do
           </access>
         </rightsMetadata>
       EOXML
-
-      @r = Dor::RightsAuth.parse rights
     end
 
     it 'true if a file has stanford-only read access' do
-      expect(@r).to be_stanford_only_unrestricted_file('interviews1.doc')
-      expect(@r).to be_stanford_only_unrestricted_file('interviews2.doc')
+      expect(dra).to be_stanford_only_unrestricted_file('interviews1.doc')
+      expect(dra).to be_stanford_only_unrestricted_file('interviews2.doc')
     end
 
-    it 'returns the value of object level #stanford_only_unrestricted? if the queried file is not listed' do
-      expect(@r).not_to be_stanford_only_unrestricted_file('object-level-rights.xml')
-      expect(@r.stanford_only_unrestricted_file?('object-level-rights.xml')).to eq @r.stanford_only_unrestricted?
+    it 'value of object level #stanford_only_unrestricted? if the queried file is not listed' do
+      expect(dra).not_to be_stanford_only_unrestricted_file('object-level-rights.xml')
+      expect(dra.stanford_only_unrestricted_file?('object-level-rights.xml')).to eq dra.stanford_only_unrestricted?
     end
 
     it 'false if a file is stanford-only AND has a rule attribute' do
-      expect(@r).not_to be_stanford_only_unrestricted_file('su-only-no-download.doc')
+      expect(dra).not_to be_stanford_only_unrestricted_file('su-only-no-download.doc')
     end
   end
 
@@ -431,10 +424,9 @@ describe Dor::RightsAuth do
         expect(@r).to be_public_unrestricted_file('interviews2.doc')
       end
 
-      it 'returns the value of object level #public? if the queried file is not listed' do
+      it 'value of object level #public? if the queried file is not listed' do
         expect(@r).not_to be_public_unrestricted_file('stanford-only-file.txt')
       end
-
     end
   end
 

@@ -53,7 +53,6 @@ module Dor
     def world_unrestricted?
       @obj_lvl.world.value && @obj_lvl.world.rule.nil?
     end
-
     alias_method :public_unrestricted?, :world_unrestricted?
 
     def readable?
@@ -74,7 +73,6 @@ module Dor
       return false unless @obj_lvl.agent.key? agent_name
       @obj_lvl.agent[agent_name].value && @obj_lvl.agent[agent_name].rule.nil?
     end
-
     alias_method :allowed_read_agent?, :agent_unrestricted?
 
     # Returns true if the file is stanford-only readable AND has no rule attribute
@@ -98,18 +96,17 @@ module Dor
 
       @file[file_name].world.value && @file[file_name].world.rule.nil?
     end
-
     alias_method :public_unrestricted_file?, :world_unrestricted_file?
 
     # Returns whether an object-level world node exists, and the value of its rule attribute
-    # @return [Array<(Boolean, String)>] First value: existance of node. Second Value: rule attribute, nil otherwise
+    # @return [Array<(Boolean, String)>] First value: existence of node. Second Value: rule attribute, nil otherwise
     # @example Using multiple variable assignment to read both array elements
     #   world_exists, world_rule = rights.world_rights
     def world_rights
       [@obj_lvl.world.value, @obj_lvl.world.rule]
     end
 
-    # Returns whether and object-level group/stanford node exists, and the value of its rule attribute
+    # Returns whether an object-level group/stanford node exists, and the value of its rule attribute
     # @return (see #world_rights)
     # @example Using multiple variable assignment to read both array elements
     #   su_only_exists, su_only_rule = rights.stanford_only_rights
@@ -168,7 +165,7 @@ module Dor
     # Returns whether a file-level group/stanford node exists, and the value of its rule attribute
     #    If a group/stanford node does not exist for this file, then object-level group/stanford rights are returned
     # @see #stanford_only_rights
-    # @param (see #world_rights_for_file)
+    # @param [String] file_name name of the file being tested
     # @return (see #world_rights)
     # @example Using multiple variable assignment to read both array elements
     #   su_only_exists, su_only_rule = rights.stanford_only_rights_for_file('somefile')

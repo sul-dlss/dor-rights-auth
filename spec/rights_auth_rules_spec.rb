@@ -23,7 +23,6 @@ describe Dor::RightsAuth do
   end
 
   describe '#stanford_only_rights no-download' do
-
     it 'returns the value and rule attribute for the entire object' do
       rights = <<-EOXML
       <objectType>
@@ -43,7 +42,7 @@ describe Dor::RightsAuth do
     end
   end
 
-  context 'stanford-only full privileges, world download-only' do
+  context 'stanford-only full privileges, world no-download' do
     it 'handles stuff' do
       rights = <<-EOXML
       <objectType>
@@ -83,8 +82,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>interview.doc</file>
                 <machine>
@@ -128,8 +125,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>file1.txt</file>
                 <file>file2.txt</file>
@@ -180,8 +175,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>file1.txt</file>
                 <machine>
@@ -240,8 +233,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>interview.doc</file>
                 <machine>
@@ -287,8 +278,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>file1.txt</file>
                 <file>file2.txt</file>
@@ -341,8 +330,6 @@ describe Dor::RightsAuth do
                   <world/>
                 </machine>
               </access>
-            </rightsMetadata>
-            <rightsMetadata>
               <access type="read">
                 <file>file1.txt</file>
                 <machine>
@@ -398,8 +385,8 @@ describe Dor::RightsAuth do
   end
 
   describe '#agent_rights_for_file' do
-    before(:each) do
-      rights = <<-EOXML
+    let(:dra) do
+      Dor::RightsAuth.parse <<-EOXML
       <objectType>
         <rightsMetadata>
           <access type="read">
@@ -408,8 +395,6 @@ describe Dor::RightsAuth do
               <agent rule="objlevel">adminapp</agent>
             </machine>
           </access>
-        </rightsMetadata>
-        <rightsMetadata>
           <access type="read">
             <file>interview.doc</file>
             <machine>
@@ -422,30 +407,29 @@ describe Dor::RightsAuth do
         </rightsMetadata>
       </objectType>
       EOXML
-      @r = Dor::RightsAuth.parse rights
     end
 
     it 'returns agent rights for a given file' do
-      agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp1')
+      agent_val, rule = dra.agent_rights_for_file('interview.doc', 'someapp1')
       expect(agent_val).to be_truthy
       expect(rule).to be_nil
 
-      agent_val, rule = @r.agent_rights_for_file('interview.doc', 'someapp2')
+      agent_val, rule = dra.agent_rights_for_file('interview.doc', 'someapp2')
       expect(agent_val).to be_truthy
       expect(rule).to eq('somerule')
 
       # if agent not listed for file, return false
-      agent_val, rule = @r.agent_rights_for_file('interview.doc', 'unauthorized-app')
+      agent_val, rule = dra.agent_rights_for_file('interview.doc', 'unauthorized-app')
       expect(agent_val).to be_falsey
       expect(rule).to be_nil
     end
 
     it 'returns object level rights if the file does not have listed rights' do
-      agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'adminapp')
+      agent_val, rule = dra.agent_rights_for_file('freetosee.doc', 'adminapp')
       expect(agent_val).to be_truthy
       expect(rule).to eq('objlevel')
 
-      agent_val, rule = @r.agent_rights_for_file('freetosee.doc', 'someapp2')
+      agent_val, rule = dra.agent_rights_for_file('freetosee.doc', 'someapp2')
       expect(agent_val).to be_falsey
       expect(rule).to be_nil
     end
