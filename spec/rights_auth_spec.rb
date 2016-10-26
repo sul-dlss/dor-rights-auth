@@ -126,6 +126,104 @@ describe Dor::RightsAuth do
     end
   end
 
+  describe '#stanford_only_downloadable?' do
+    it 'false if object has stanford-only read access with no-download rule' do
+      rights_md_xml = <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <group rule="no-download">stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+      r = Dor::RightsAuth.parse rights_md_xml
+      expect(r).not_to be_stanford_only_downloadable
+      expect(r).not_to be_public_downloadable
+    end
+
+    it 'true if object has stanford-only read access without a rule attribute' do
+      r = Dor::RightsAuth.parse stanford_readable_xml
+      expect(r).to be_stanford_only_downloadable
+      expect(r).not_to be_public_downloadable
+    end
+
+    it 'true if object has stanford-only read access with rule other than no-download' do
+      rights_md_xml = <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <group rule="foobar">stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+      r = Dor::RightsAuth.parse rights_md_xml
+      expect(r).to be_stanford_only_downloadable
+      expect(r).not_to be_public_downloadable
+    end
+
+    it 'false if the object does not have stanford-only read access' do
+      r = Dor::RightsAuth.parse world_readable_xml
+      expect(r).not_to be_stanford_only_downloadable
+      expect(r).to be_public_downloadable
+    end
+
+    context 'file level' do
+      context 'stanford-only access but object-level world access' do
+        context 'multiple <file> elements inside single <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group rule='no-download' >stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_downloadable
+          end
+        end
+        context 'each <file> element inside own <access> element' do
+          it 'false' do
+            xml = <<-EOXML
+              <rightsMetadata>
+                <access type="read">
+                  <file>interviews1.doc</file>
+                  <machine>
+                    <group rule='no-download'>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <file>interviews2.doc</file>
+                  <machine>
+                    <group>stanford</group>
+                  </machine>
+                </access>
+                <access type="read">
+                  <machine>
+                    <world />
+                  </machine>
+                </access>
+              </rightsMetadata>
+            EOXML
+            rights = Dor::RightsAuth.parse xml
+            expect(rights).not_to be_stanford_only_downloadable
+          end
+        end
+      end
+    end
+  end # #stanford_only_downloadable?
+
   describe '#public_unrestricted?' do
 
     it 'true if object has world readable visibility' do
@@ -191,8 +289,60 @@ describe Dor::RightsAuth do
 
   end
 
-  describe '#readable?' do
+  describe '#public_downloadable?' do
+    it 'false if object has world read access with no-download rule' do
+      rights = <<-EOXML
+        <rightsMetadata>
+          <access type="discover">
+            <machine>
+              <world rule='no-download' />
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+      expect(r).not_to be_public_downloadable
+    end
+    it 'true if object has world read access without a rule attribute' do
+      r = Dor::RightsAuth.parse world_readable_xml
+      expect(r).to be_public_downloadable
+    end
+    it 'true if object has world read access with rule other than no-download' do
+      rights = <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <machine>
+              <world rule='foobar' />
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+      expect(r).to be_public_downloadable
+    end
+    it 'false if file-level world downloadable access but object-level stanford-only non-downloadable' do
+      rights = <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <file>public1.doc</file>
+            <file>public2.doc</file>
+            <machine>
+              <world />
+            </machine>
+          </access>
+          <access type="read">
+            <machine>
+              <group rule="no-download">stanford</group>
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+      r = Dor::RightsAuth.parse rights
+      expect(r).not_to be_public_downloadable
+    end
+  end # public_downloadable?
 
+  describe '#readable?' do
     it 'true if the rights metadata contains a read block' do
       r = Dor::RightsAuth.parse world_readable_xml
       expect(r).to be_readable
@@ -395,12 +545,47 @@ describe Dor::RightsAuth do
     end
   end
 
+  describe '#stanford_only_downloadable_file?' do
+    let(:dra) do
+      Dor::RightsAuth.parse <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <file>no-download1.doc</file>
+            <machine>
+              <group rule="no-download">stanford</group>
+            </machine>
+          </access>
+          <access type="read">
+            <file>download-ok.pdf</file>
+            <machine>
+              <group>stanford</group>
+            </machine>
+          </access>
+          <access type="read">
+            <machine>
+              <world />
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
+    end
+
+    it 'true if file is stanford only downloadable' do
+      expect(dra).to be_stanford_only_downloadable_file('download-ok.pdf')
+    end
+    it 'false if file not stanford only downloadable?' do
+      expect(dra).not_to be_stanford_only_downloadable_file('no-download1.doc')
+    end
+    it 'value of object level #downloadable? if the queried file is not listed' do
+      expect(dra).not_to be_stanford_only_downloadable_file('file_w_object_level_rights')
+      expect(dra.stanford_only_downloadable_file?('file_w_object_level_rights')).to eq dra.stanford_only_downloadable?
+    end
+  end
+
   describe '#public_unrestricted_file?' do
-
     context 'stanford-only object level read-access, but world access to individual files' do
-
-      before(:all) do
-        rights = <<-EOXML
+      let(:dra) do
+        Dor::RightsAuth.parse <<-EOXML
           <rightsMetadata>
             <access type="read">
               <file>interviews1.doc</file>
@@ -416,16 +601,52 @@ describe Dor::RightsAuth do
             </access>
           </rightsMetadata>
         EOXML
-
-        @r = Dor::RightsAuth.parse rights
       end
 
       it 'true if the file has world unrestricted read access' do
-        expect(@r).to be_public_unrestricted_file('interviews2.doc')
+        expect(dra).to be_public_unrestricted_file('interviews2.doc')
       end
 
       it 'value of object level #public? if the queried file is not listed' do
-        expect(@r).not_to be_public_unrestricted_file('stanford-only-file.txt')
+        expect(dra).not_to be_public_unrestricted_file('stanford-only-file.txt')
+      end
+    end
+  end
+
+  describe '#public_downloadable_file?' do
+    context 'stanford-only object level read-access, but world access to individual files' do
+      let(:dra) do
+        Dor::RightsAuth.parse <<-EOXML
+          <rightsMetadata>
+            <access type="read">
+              <file>no-download1.doc</file>
+              <machine>
+                <world rule="no-download"/>
+              </machine>
+            </access>
+            <access type="read">
+              <file>download-ok.pdf</file>
+              <machine>
+                <world/>
+              </machine>
+            </access>
+            <access type="read">
+              <machine>
+                <group>stanford</group>
+              </machine>
+            </access>
+          </rightsMetadata>
+        EOXML
+      end
+      it 'true if file is downloadable' do
+        expect(dra).to be_public_downloadable_file('download-ok.pdf')
+      end
+      it 'false if file not downloadable?' do
+        expect(dra).not_to be_public_downloadable_file('no-download1.doc')
+      end
+      it 'value of object level #downloadable? if the queried file is not listed' do
+        expect(dra).not_to be_public_downloadable_file('file_w_object_level_rights')
+        expect(dra.public_downloadable_file?('file_w_object_level_rights')).to eq dra.public_downloadable?
       end
     end
   end

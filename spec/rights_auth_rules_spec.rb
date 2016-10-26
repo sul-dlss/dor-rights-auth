@@ -17,7 +17,7 @@ describe Dor::RightsAuth do
       EOXML
       r = Dor::RightsAuth.parse rights
       world, rule = r.world_rights
-      expect(world).to be
+      expect(world).to be_truthy
       expect(rule).to eq('no-download')
     end
   end
@@ -37,7 +37,7 @@ describe Dor::RightsAuth do
       EOXML
       r = Dor::RightsAuth.parse rights
       su_only, rule = r.stanford_only_rights
-      expect(su_only).to be
+      expect(su_only).to be_truthy
       expect(rule).to eq('no-download')
     end
   end
@@ -56,17 +56,19 @@ describe Dor::RightsAuth do
         </rightsMetadata>
       </objectType>
       EOXML
-      @r = Dor::RightsAuth.parse rights
+      dra = Dor::RightsAuth.parse rights
 
-      su_only, rule = @r.stanford_only_rights
-      expect(su_only).to be
+      su_only, rule = dra.stanford_only_rights
+      expect(su_only).to be_truthy
       expect(rule).to be_nil
-      expect(@r).to be_stanford_only_unrestricted
+      expect(dra).to be_stanford_only_unrestricted
+      expect(dra).to be_stanford_only_downloadable
 
-      world_val, world_rule = @r.world_rights
-      expect(world_val).to be
+      world_val, world_rule = dra.world_rights
+      expect(world_val).to be_truthy
       expect(world_rule).to eq('no-download')
-      expect(@r).not_to be_world_unrestricted
+      expect(dra).not_to be_world_unrestricted
+      expect(dra).not_to be_world_downloadable
     end
   end
 
@@ -381,7 +383,6 @@ describe Dor::RightsAuth do
         end
       end
     end
-
   end
 
   describe '#agent_rights_for_file' do

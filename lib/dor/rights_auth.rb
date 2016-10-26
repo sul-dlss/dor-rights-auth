@@ -32,6 +32,7 @@ module Dor
   class RightsAuth
 
     CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')".freeze
+    NO_DOWNLOAD_RULE = 'no-download'.freeze
 
     attr_accessor :obj_lvl, :file, :embargoed, :index_elements
 
@@ -60,10 +61,25 @@ module Dor
       public_unrestricted? || stanford_only_unrestricted?
     end
 
+    # Returns true if the object is readable AND allows download
+    # @return [Boolean]
+    def world_downloadable?
+      world_rule = @obj_lvl.world.rule
+      @obj_lvl.world.value && (world_rule.nil? || world_rule != NO_DOWNLOAD_RULE)
+    end
+    alias_method :public_downloadable?, :world_downloadable?
+
     # Returns true if the object is stanford-only readable AND has no rule attribute
     # @return [Boolean]
     def stanford_only_unrestricted?
       @obj_lvl.group[:stanford].value && @obj_lvl.group[:stanford].rule.nil?
+    end
+
+    # Returns true if the object is stanford-only readable AND allows download
+    # @return [Boolean]
+    def stanford_only_downloadable?
+      stanford_rule = @obj_lvl.group[:stanford].rule
+      @obj_lvl.group[:stanford].value && (stanford_rule.nil? || stanford_rule != NO_DOWNLOAD_RULE)
     end
 
     # Returns true if the passed in agent (usually an application) is allowed access to the object without a rule
@@ -97,6 +113,27 @@ module Dor
       @file[file_name].world.value && @file[file_name].world.rule.nil?
     end
     alias_method :public_unrestricted_file?, :world_unrestricted_file?
+
+    # Returns true if the file is world readable AND either has no rule attribute or
+    # the rule attribute is not 'no-download'
+    #   If world rights do not exist for this file, then object level rights are returned
+    # @see #world_downloadable?
+    # @param [String] file_name name of the file being tested
+    # @return (see #world_rights)
+    def world_downloadable_file?(file_name)
+      return world_downloadable? if @file[file_name].nil? || @file[file_name].world.nil?
+
+      world_rule = @file[file_name].world.rule
+      @file[file_name].world.value && (world_rule.nil? || world_rule != NO_DOWNLOAD_RULE)
+    end
+    alias_method :public_downloadable_file?, :world_downloadable_file?
+
+    def stanford_only_downloadable_file?(file_name)
+      return stanford_only_downloadable? if @file[file_name].nil? || @file[file_name].group[:stanford].nil?
+
+      stanford_rule = @file[file_name].group[:stanford].rule
+      @file[file_name].group[:stanford].value && (stanford_rule.nil? || stanford_rule != NO_DOWNLOAD_RULE)
+    end
 
     # Returns whether an object-level world node exists, and the value of its rule attribute
     # @return [Array<(Boolean, String)>] First value: existence of node. Second Value: rule attribute, nil otherwise
