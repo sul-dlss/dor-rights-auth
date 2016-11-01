@@ -4,10 +4,10 @@ $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'dor-rights-auth'
-  s.version     = '1.2.0'
+  s.version     = '1.3.0'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Willy Mene', 'Joe Atzberger']
-  s.email       = ['wmene@stanford.edu', 'atz@stanford.edu']
+  s.email       = ['atz@stanford.edu']
   s.summary     = 'Parses rightsMetadata xml into a useable object'
   s.description = 'Parses rightsMetadata xml into a useable object'
 
