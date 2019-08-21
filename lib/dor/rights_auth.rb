@@ -294,7 +294,7 @@ module Dor
     def self.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
-      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
+      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none") || doc.at_xpath("//rightsMetadata/access[@type='discover']/machine[not(*)]")
       terms.push 'world_discover' if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
       return terms if machine.nil?
 
