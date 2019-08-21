@@ -398,6 +398,24 @@ describe Dor::RightsAuth do
         expect(r).not_to be_readable
         expect(r).not_to be_public_unrestricted_file('file.doc')
         expect(r).not_to be_public_unrestricted
+        expect { r.dark? }.to raise_error(RuntimeError)
+      end
+    end
+
+    describe 'parse for indexing' do
+      it 'correctly' do
+        r = Dor::RightsAuth.parse rights, true
+
+        world, rule1 = r.world_rights
+        stan,  rule2 = r.stanford_only_rights
+        expect(world).not_to be
+        expect(stan ).not_to be
+        expect(rule1).to be_nil
+        expect(rule2).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted_file('file.doc')
+        expect(r).not_to be_public_unrestricted
+        expect(r.dark?).to be true
       end
     end
   end

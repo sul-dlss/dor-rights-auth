@@ -49,6 +49,23 @@ module Dor
       @embargoed
     end
 
+    def check_index_elements_calculated!
+      unless index_elements.size > 0
+        raise "primary access rights not calculated.  instantiate by calling '.parse(xml, forindex = true)'."
+      end
+    end
+
+    # this is just a convenience method for asking whether an object's rights would
+    # classify it as 'dark'.  that info is mostly used for object-level indexing/faceting.
+    # thus, we currently only calculate it when parsing object rights for indexing.
+    # to keep from having to refactor or duplicate code right now, we'll just leverage
+    # what we've got, and throw an error if the object wasn't instantiated in a way
+    # this method can use.
+    def dark?
+      check_index_elements_calculated!
+      index_elements[:primary] == 'dark'
+    end
+
     # Returns true if the object is world readable AND has no rule attribute
     # @return [Boolean]
     def world_unrestricted?
@@ -277,7 +294,7 @@ module Dor
     def self.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
-      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none")
+      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none") || doc.at_xpath("//rightsMetadata/access[@type='discover']/machine[not(*)]")
       terms.push 'world_discover' if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
       return terms if machine.nil?
 
