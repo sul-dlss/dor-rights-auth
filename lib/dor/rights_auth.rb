@@ -49,6 +49,11 @@ module Dor
       @embargoed
     end
 
+    # summary level rights info is mostly used for object-level indexing/faceting.
+    # thus, we currently only calculate it when parsing object rights for indexing.
+    # to keep from having to refactor or duplicate code right now, we'll just leverage
+    # what we've got, checking whether index_elements is populated, and raising an error
+    # if the object wasn't instantiated in a way that makes those calculations.
     def check_index_elements_calculated!
       unless index_elements.size > 0
         raise "primary access rights not calculated.  instantiate by calling '.parse(xml, forindex = true)'."
@@ -56,14 +61,17 @@ module Dor
     end
 
     # this is just a convenience method for asking whether an object's rights would
-    # classify it as 'dark'.  that info is mostly used for object-level indexing/faceting.
-    # thus, we currently only calculate it when parsing object rights for indexing.
-    # to keep from having to refactor or duplicate code right now, we'll just leverage
-    # what we've got, and throw an error if the object wasn't instantiated in a way
-    # this method can use.
+    # classify it as 'dark'.
     def dark?
       check_index_elements_calculated!
       index_elements[:primary] == 'dark'
+    end
+
+    # this is just a convenience method for asking whether an object's rights would
+    # classify it as 'citation only'.
+    def citation_only?
+      check_index_elements_calculated!
+      index_elements[:primary] == 'citation'
     end
 
     # Returns true if the object is world readable AND has no rule attribute

@@ -384,6 +384,77 @@ describe Dor::RightsAuth do
     end
   end
 
+  shared_examples 'citation only scenarios' do
+    describe 'parse' do
+      it 'correctly answers various rights queries where possible, and raises when it is unable' do
+        r = Dor::RightsAuth.parse rights
+
+        world, rule1 = r.world_rights
+        stan,  rule2 = r.stanford_only_rights
+        expect(world).not_to be
+        expect(stan ).not_to be
+        expect(rule1).to be_nil
+        expect(rule2).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted
+        expect { r.citation_only? }.to raise_error(RuntimeError)
+      end
+    end
+
+    describe 'parse for indexing' do
+      it 'correctly answers various rights queries' do
+        r = Dor::RightsAuth.parse rights, true
+
+        world, rule1 = r.world_rights
+        stan,  rule2 = r.stanford_only_rights
+        expect(world).not_to be
+        expect(stan ).not_to be
+        expect(rule1).to be_nil
+        expect(rule2).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted
+        expect(r.citation_only?).to be true
+      end
+    end
+  end
+
+  describe 'rights metadata indicates world discoverability, but has no read block' do
+    it_behaves_like 'citation only scenarios' do
+      let(:rights) do
+        <<-EOXML
+          <rightsMetadata>
+            <access type="discover">
+              <machine>
+                <world />
+              </machine>
+            </access>
+          </rightsMetadata>
+        EOXML
+      end
+    end
+  end
+
+  describe 'rights metadata indicates world discoverability, but read access is explicitly none' do
+    it_behaves_like 'citation only scenarios' do
+      let(:rights) do
+        <<-EOXML
+          <rightsMetadata>
+            <access type="discover">
+              <machine>
+                <world />
+              </machine>
+            </access>
+            <access type="read">
+              <machine>
+                <none/>
+              </machine>
+            </access>
+          </rightsMetadata>
+        EOXML
+      end
+    end
+  end
+
   shared_examples 'dark scenarios' do
     describe 'parse' do
       it 'correctly' do
