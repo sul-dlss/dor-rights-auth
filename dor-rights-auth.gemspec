@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name        = 'dor-rights-auth'
   s.version     = '1.4.0'
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Willy Mene', 'Joe Atzberger']
-  s.email       = ['atz@stanford.edu']
+  s.authors     = ['Willy Mene', 'Joe Atzberger', 'Johnathan Martin', 'Naomi Dushay']
+  s.email       = ['dlss-infrastructure-team@lists.stanford.edu']
   s.summary     = 'Parses rightsMetadata xml into a useable object'
   s.description = 'Parses rightsMetadata xml into a useable object'
 
