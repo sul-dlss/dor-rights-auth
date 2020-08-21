@@ -206,6 +206,38 @@ describe Dor::RightsAuth do
     end
   end
 
+  describe 'controlled_digital_lending' do
+    let(:rights) do
+      <<-XML
+      <objectType>
+        <rightsMetadata>
+          <access type="discover">
+            <machine>
+              <world/>
+            </machine>
+          </access>
+          <access type="read">
+            <machine>
+              <cdl>
+                <group rule="no-download">stanford</group>
+              </cdl>
+            </machine>
+          </access>
+        </rightsMetadata>
+      </objectType>
+      XML
+    end
+    it 'adds the cdl_none rule' do
+      r = Dor::RightsAuth.parse(rights, true)
+      i = r.index_elements
+      expect(i).to be
+      expect(i[:errors] ).to be_empty
+      expect(i[:primary]).to eq 'controlled digital lending'
+      expect(i[:terms]  ).to include('world_discover', 'has_rule', 'cdl_none', 'profile:cdl1')
+      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+    end
+  end
+
   describe '#world_rights_for_file and #stanford_only_rights_for_file' do
     rights = <<-EOXML
     <objectType>

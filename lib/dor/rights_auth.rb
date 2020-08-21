@@ -10,7 +10,7 @@ module Dor
   Rights = Struct.new(:value, :rule)
 
   # Rights for an object or File
-  EntityRights = Struct.new(:world, :group, :agent, :location)
+  EntityRights = Struct.new(:world, :group, :agent, :location, :controlledDigitalLending)
   # class EntityRights
   #   @world = #Rights
   #   @group {
@@ -95,6 +95,12 @@ module Dor
       @obj_lvl.world.value && (world_rule.nil? || world_rule != NO_DOWNLOAD_RULE)
     end
     alias_method :public_downloadable?, :world_downloadable?
+
+    # Returns true if the object is enabled for controlled digital lending
+    # @return [Boolean]
+    def controlled_digital_lending?
+      @obj_lvl.controlledDigitalLending
+    end
 
     # Returns true if the object is stanford-only readable AND has no rule attribute
     # @return [Boolean]
@@ -338,6 +344,8 @@ module Dor
       elsif machine.at_xpath('./world')
         terms.push 'world_read'
         terms.push "world|#{machine.at_xpath('./world/@rule').value.downcase}" if machine.at_xpath('./world/@rule')
+      elsif machine.at_xpath('./cdl')
+        terms.push 'cdl_none'
       end
 
       # now some statistical generation
@@ -410,6 +418,8 @@ module Dor
       has_rule = index_terms.include? 'has_rule'
       if index_terms.include?('none_discover')
         'dark'
+      elsif index_terms.include?('cdl_none')
+        'controlled digital lending'
       elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
         'dark'
       elsif errors.include?('no_read_machine') || index_terms.include?('none_read')
@@ -446,7 +456,14 @@ module Dor
         rights.obj_lvl.world.value = false
       end
 
-      rights.obj_lvl.group = { :stanford => Rights.new }
+      # TODO: we should also look for the <group rule="no-download">stanford</group> node and parse as needed
+      if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/cdl")
+        rights.obj_lvl.controlledDigitalLending = true
+      else
+        rights.obj_lvl.controlledDigitalLending = false
+      end
+
+      rights.obj_lvl.group  = { :stanford => Rights.new }
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true
