@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Dor::RightsAuth do
@@ -16,11 +18,13 @@ describe Dor::RightsAuth do
           </rightsMetadata>
         XML
       end
+
       it 'true if there is a matching location in the rights metadata' do
         value, rule = rights.location_rights('spec')
         expect(value).to be true
         expect(rule).to be_nil
       end
+
       it 'false if there is no matching location in the rights metadata' do
         value, rule = rights.location_rights('not-a-real-location')
         expect(value).to be false
@@ -53,13 +57,16 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'returns that the item is stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted
           end
+
           it 'returns that the item is location restricted' do
             expect(rights).to be_restricted_by_location('spec')
           end
         end
+
         context 'single <access>, multiple <machine> elements (preferred way)' do
           let(:rights_xml) do
             <<-XML
@@ -75,13 +82,16 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'returns that the item is stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted
           end
+
           it 'returns that the item is location restricted' do
             expect(rights).to be_restricted_by_location('spec')
           end
         end
+
         context 'single <access>, single <machine> element (NOT kosher - documenting current behavior)' do
           # this *may* be how we do "AND" in the future (distinguish it from "OR")
           let(:rights_xml) do
@@ -96,9 +106,11 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'returns that the item is stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted
           end
+
           it 'returns that the item is location restricted' do
             expect(rights).to be_restricted_by_location('spec')
           end
@@ -119,16 +131,19 @@ describe Dor::RightsAuth do
           </rightsMetadata>
         XML
       end
+
       it 'true if there is a matching location for the given file in the rights metadata' do
         value, rule = rights.location_rights_for_file('location-protected.doc', 'spec')
         expect(value).to be true
         expect(rule).to be_nil
       end
+
       it 'false if there is no matching location for the given file in the rights metadata' do
         value, rule = rights.location_rights_for_file('unkown.doc', 'spec')
         expect(value).to be false
         expect(rule).to be_nil
       end
+
       it 'returns false when there is a matching file but the location does not exist' do
         value, rule = rights.location_rights_for_file('location-protected.doc', 'not-a-real-location')
         expect(value).to be false
@@ -163,11 +178,13 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'file is restricted per second access block only' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
             expect(rights).not_to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
           end
         end
+
         context 'single <access>, multiple <machine> elements (preferred way)' do
           let(:rights_xml) do
             <<-XML
@@ -184,13 +201,16 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'file is stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
           end
+
           it 'file is location restricted' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
           end
         end
+
         context 'single <access>, single <machine> element (NOT kosher - documenting current behavior)' do
           # this *may* be how we do "AND" in the future (distinguish it from "OR")
           let(:rights_xml) do
@@ -206,9 +226,11 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'file is stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
           end
+
           it 'file is location restricted' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
           end
@@ -231,15 +253,18 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'files are stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected1.doc')
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected2.doc')
           end
+
           it 'files are location restricted' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected1.doc')
             expect(rights).to be_restricted_by_location('location-or-stanford-protected2.doc')
           end
         end
+
         context 'each <file> element inside own <access> element' do
           let(:rights_xml) do
             <<-XML
@@ -265,10 +290,12 @@ describe Dor::RightsAuth do
               </rightsMetadata>
             XML
           end
+
           it 'files are stanford restricted' do
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected1.doc')
             expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected2.doc')
           end
+
           it 'files are location restricted' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected1.doc')
             expect(rights).to be_restricted_by_location('location-or-stanford-protected2.doc')
@@ -289,6 +316,7 @@ describe Dor::RightsAuth do
           </rightsMetadata>
         XML
       end
+
       it 'returns the rule attribute as part of the rights' do
         _, rule = rights.location_rights('spec')
         expect(rule).to eq 'no-download'

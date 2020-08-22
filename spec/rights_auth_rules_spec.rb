@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Dor::RightsAuth do
@@ -96,27 +98,32 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated file' do
           world, rule = dor_rights_auth.world_rights_for_file('interview.doc')
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated file' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('interview.doc')
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey
           expect(su_rule).to be_nil
         end
       end
+
       context 'multiple <file> elements inside single <access> element' do
         let(:dor_rights_auth) do
           rights = <<-EOXML
@@ -140,6 +147,7 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated files' do
           world, rule = dor_rights_auth.world_rights_for_file('file1.txt')
           expect(world).to be_truthy
@@ -148,6 +156,7 @@ describe Dor::RightsAuth do
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated files' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('file1.txt')
           expect(su).to be_truthy
@@ -156,17 +165,20 @@ describe Dor::RightsAuth do
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey
           expect(su_rule).to be_nil
         end
       end
+
       context 'each <file> element inside own <access> element' do
         let(:dor_rights_auth) do
           rights = <<-EOXML
@@ -196,6 +208,7 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated files' do
           world, rule = dor_rights_auth.world_rights_for_file('file1.txt')
           expect(world).to be_truthy
@@ -204,6 +217,7 @@ describe Dor::RightsAuth do
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated files' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('file1.txt')
           expect(su).to be_truthy
@@ -212,11 +226,13 @@ describe Dor::RightsAuth do
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey
@@ -224,6 +240,7 @@ describe Dor::RightsAuth do
         end
       end
     end
+
     context 'multiple <machine> elements inside <access> element' do
       context 'single file' do
         let(:dor_rights_auth) do
@@ -249,27 +266,32 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated file' do
           world, rule = dor_rights_auth.world_rights_for_file('interview.doc')
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated file' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('interview.doc')
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey
           expect(su_rule).to be_nil
         end
       end
+
       context 'multiple <file> elements inside single <access> element' do
         let(:dor_rights_auth) do
           rights = <<-EOXML
@@ -295,6 +317,7 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated files' do
           world, rule = dor_rights_auth.world_rights_for_file('file1.txt')
           expect(world).to be_truthy
@@ -303,6 +326,7 @@ describe Dor::RightsAuth do
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated files' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('file1.txt')
           expect(su).to be_truthy
@@ -311,17 +335,20 @@ describe Dor::RightsAuth do
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey
           expect(su_rule).to be_nil
         end
       end
+
       context 'each <file> element inside own <access> element' do
         let(:dor_rights_auth) do
           rights = <<-EOXML
@@ -355,6 +382,7 @@ describe Dor::RightsAuth do
           EOXML
           Dor::RightsAuth.parse rights
         end
+
         it '#world_rights_for_file is true with correct rule for indicated files' do
           world, rule = dor_rights_auth.world_rights_for_file('file1.txt')
           expect(world).to be_truthy
@@ -363,6 +391,7 @@ describe Dor::RightsAuth do
           expect(world).to be_truthy
           expect(rule).to eq('no-download')
         end
+
         it '#stanford_only_rights_for_file is true with correct rule for indicated files' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('file1.txt')
           expect(su).to be_truthy
@@ -371,11 +400,13 @@ describe Dor::RightsAuth do
           expect(su).to be_truthy
           expect(su_rule).to be_nil
         end
+
         it 'defaults to object level world rights when the questioned file does not have listed rights' do
           world, rule = dor_rights_auth.world_rights_for_file('object.doc')
           expect(world).to be_truthy
           expect(rule).to eq(nil)
         end
+
         it 'defaults to object level stanford rights when the questioned file does not have listed rights' do
           su, su_rule = dor_rights_auth.stanford_only_rights_for_file('object.doc')
           expect(su).to be_falsey

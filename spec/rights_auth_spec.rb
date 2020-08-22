@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Dor::RightsAuth do
@@ -30,7 +32,7 @@ describe Dor::RightsAuth do
       r1 = Dor::RightsAuth.parse stanford_readable_xml
       r2 = Dor::RightsAuth.parse "<some><other><junk>#{stanford_readable_xml}</junk></other></some>"
       r3 = Dor::RightsAuth.parse Nokogiri::XML(stanford_readable_xml)
-      [r1, r2, r3].each{ |r|
+      [r1, r2, r3].each { |r|
         expect(r).to be_stanford_only_unrestricted
         expect(r).not_to be_public_unrestricted
       }
@@ -68,7 +70,7 @@ describe Dor::RightsAuth do
         </rightsMetadata>
       EOXML
       r = Dor::RightsAuth.parse rights
-      expect(r).to_not be_stanford_only_unrestricted
+      expect(r).not_to be_stanford_only_unrestricted
     end
 
     context 'file level' do
@@ -95,6 +97,7 @@ describe Dor::RightsAuth do
             expect(rights).not_to be_stanford_only_unrestricted
           end
         end
+
         context 'each <file> element inside own <access> element' do
           it 'false' do
             xml = <<-EOXML
@@ -193,6 +196,7 @@ describe Dor::RightsAuth do
             expect(rights).not_to be_stanford_only_downloadable
           end
         end
+
         context 'each <file> element inside own <access> element' do
           it 'false' do
             xml = <<-EOXML
@@ -222,7 +226,7 @@ describe Dor::RightsAuth do
         end
       end
     end
-  end # #stanford_only_downloadable?
+  end
 
   describe '#public_unrestricted?' do
 
@@ -303,10 +307,12 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_public_downloadable
     end
+
     it 'true if object has world read access without a rule attribute' do
       r = Dor::RightsAuth.parse world_readable_xml
       expect(r).to be_public_downloadable
     end
+
     it 'true if object has world read access with rule other than no-download' do
       rights = <<-EOXML
         <rightsMetadata>
@@ -320,6 +326,7 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).to be_public_downloadable
     end
+
     it 'false if file-level world downloadable access but object-level stanford-only non-downloadable' do
       rights = <<-EOXML
         <rightsMetadata>
@@ -340,7 +347,7 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse rights
       expect(r).not_to be_public_downloadable
     end
-  end # public_downloadable?
+  end
 
   describe '#readable?' do
     it 'true if the rights metadata contains a read block' do
@@ -493,7 +500,7 @@ describe Dor::RightsAuth do
 
   describe 'explicit none' do
     it_behaves_like 'dark scenarios' do
-      let(:rights) {<<-EOXML
+      let(:rights) { <<-EOXML
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -505,18 +512,20 @@ describe Dor::RightsAuth do
       }
     end
   end
+
   describe 'empty rightsMetadata' do
     it_behaves_like 'dark scenarios' do
-      let(:rights) {<<-EOXML
+      let(:rights) { <<-EOXML
           <rightsMetadata>
           </rightsMetadata>
-        EOXML
+      EOXML
       }
     end
   end
+
   describe 'empty access' do
     it_behaves_like 'dark scenarios' do
-      let(:rights) {<<-EOXML
+      let(:rights) { <<-EOXML
         <rightsMetadata>
           <access type="discover">
           </access>
@@ -525,9 +534,10 @@ describe Dor::RightsAuth do
       }
     end
   end
+
   describe 'empty machine' do
     it_behaves_like 'dark scenarios' do
-      let(:rights) {<<-EOXML
+      let(:rights) { <<-EOXML
         <rightsMetadata>
           <access type="discover">
             <machine>
@@ -662,9 +672,11 @@ describe Dor::RightsAuth do
     it 'true if file is stanford only downloadable' do
       expect(dra).to be_stanford_only_downloadable_file('download-ok.pdf')
     end
+
     it 'false if file not stanford only downloadable?' do
       expect(dra).not_to be_stanford_only_downloadable_file('no-download1.doc')
     end
+
     it 'value of object level #downloadable? if the queried file is not listed' do
       expect(dra).not_to be_stanford_only_downloadable_file('file_w_object_level_rights')
       expect(dra.stanford_only_downloadable_file?('file_w_object_level_rights')).to eq dra.stanford_only_downloadable?
@@ -727,12 +739,15 @@ describe Dor::RightsAuth do
           </rightsMetadata>
         EOXML
       end
+
       it 'true if file is downloadable' do
         expect(dra).to be_public_downloadable_file('download-ok.pdf')
       end
+
       it 'false if file not downloadable?' do
         expect(dra).not_to be_public_downloadable_file('no-download1.doc')
       end
+
       it 'value of object level #downloadable? if the queried file is not listed' do
         expect(dra).not_to be_public_downloadable_file('file_w_object_level_rights')
         expect(dra.public_downloadable_file?('file_w_object_level_rights')).to eq dra.public_downloadable?
