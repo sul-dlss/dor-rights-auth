@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'time'
 
@@ -31,8 +33,8 @@ module Dor
   # read rights_xml only once and create query-able methods for rights info
   class RightsAuth
 
-    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')".freeze
-    NO_DOWNLOAD_RULE = 'no-download'.freeze
+    CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
+    NO_DOWNLOAD_RULE = 'no-download'
 
     attr_accessor :obj_lvl, :file, :embargoed, :index_elements
 
@@ -112,6 +114,7 @@ module Dor
     # @return [Boolean]
     def agent_unrestricted?(agent_name)
       return false unless @obj_lvl.agent.key? agent_name
+
       @obj_lvl.agent[agent_name].value && @obj_lvl.agent[agent_name].rule.nil?
     end
     alias_method :allowed_read_agent?, :agent_unrestricted?
@@ -194,8 +197,8 @@ module Dor
     # @return [Boolean] whether any location restrictions exist on the file or the
     #   object itself (in the absence of file-level rights)
     def restricted_by_location?(file_name = nil)
-      any_file_location = @file[file_name] && @file[file_name].location.any?
-      any_object_location = @obj_lvl.location && @obj_lvl.location.any?
+      any_file_location = @file[file_name]&.location&.any?
+      any_object_location = @obj_lvl.location&.any?
 
       any_file_location || any_object_location
     end
@@ -208,6 +211,7 @@ module Dor
     # @note should be called after doing a check for world_unrestricted?
     def agent_rights(agent_name)
       return [false, nil] if @obj_lvl.agent[agent_name].nil?
+
       [@obj_lvl.agent[agent_name].value, @obj_lvl.agent[agent_name].rule]
     end
 
@@ -274,6 +278,7 @@ module Dor
     # @return [Array]        list of things that are wrong with it
     def self.validate_lite(doc)
       return ['no_rightsMetadata'] if doc.nil? || doc.at_xpath('//rightsMetadata').nil?
+
       errors = []
       maindiscover = doc.at_xpath("//rightsMetadata/access[@type='discover' and not(file)]")
       mainread     = doc.at_xpath("//rightsMetadata/access[@type='read'     and not(file)]")
@@ -302,7 +307,10 @@ module Dor
     def self.extract_index_terms(doc)
       terms = []
       machine = doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine")
-      terms.push 'none_discover'  if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none") || doc.at_xpath("//rightsMetadata/access[@type='discover']/machine[not(*)]")
+      if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/none") ||
+         doc.at_xpath("//rightsMetadata/access[@type='discover']/machine[not(*)]")
+        terms.push 'none_discover'
+      end
       terms.push 'world_discover' if doc.at_xpath("//rightsMetadata/access[@type='discover']/machine/world[not(@rule)]")
       return terms if machine.nil?
 
@@ -323,9 +331,7 @@ module Dor
         end
       end
 
-      if doc.at_xpath("//rightsMetadata/access[@type='read' and file]/machine/none")
-        terms.push "none_read_file"
-      end
+      terms.push 'none_read_file' if doc.at_xpath("//rightsMetadata/access[@type='read' and file]/machine/none")
 
       if machine.at_xpath('./none')
         terms.push 'none_read'
@@ -366,23 +372,23 @@ module Dor
     def self.init_index_elements(doc)
       errors = validate_lite(doc)
       stuff = {
-        :primary          => nil,
-        :errors           => errors,
-        :terms            => [],
-        :obj_groups       => [],
-        :obj_locations    => [],
-        :obj_agents       => [],
-        :file_groups      => [],
-        :file_locations   => [],
-        :file_agents      => [],
-        :obj_world_qualified      => [],
-        :obj_groups_qualified     => [],
-        :obj_locations_qualified  => [],
-        :obj_agents_qualified     => [],
-        :file_world_qualified     => [],
-        :file_groups_qualified    => [],
+        :primary => nil,
+        :errors => errors,
+        :terms => [],
+        :obj_groups => [],
+        :obj_locations => [],
+        :obj_agents => [],
+        :file_groups => [],
+        :file_locations => [],
+        :file_agents => [],
+        :obj_world_qualified => [],
+        :obj_groups_qualified => [],
+        :obj_locations_qualified => [],
+        :obj_agents_qualified => [],
+        :file_world_qualified => [],
+        :file_groups_qualified => [],
         :file_locations_qualified => [],
-        :file_agents_qualified    => []
+        :file_agents_qualified => []
       }
 
       if errors.include? 'no_rightsMetadata'
@@ -440,7 +446,7 @@ module Dor
         rights.obj_lvl.world.value = false
       end
 
-      rights.obj_lvl.group  = { :stanford => Rights.new }
+      rights.obj_lvl.group = { :stanford => Rights.new }
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true
@@ -548,20 +554,20 @@ module Dor
       end
 
       if forindex
-        [:obj_groups,
-         :obj_locations,
-         :obj_agents,
-         :file_groups,
-         :file_locations,
-         :file_agents,
-         :obj_world_qualified,
-         :obj_groups_qualified,
-         :obj_locations_qualified,
-         :obj_agents_qualified,
-         :file_world_qualified,
-         :file_groups_qualified,
-         :file_locations_qualified,
-         :file_agents_qualified].each { |index_elt| rights.index_elements[index_elt].uniq! }
+        %i[obj_groups
+           obj_locations
+           obj_agents
+           file_groups
+           file_locations
+           file_agents
+           obj_world_qualified
+           obj_groups_qualified
+           obj_locations_qualified
+           obj_agents_qualified
+           file_world_qualified
+           file_groups_qualified
+           file_locations_qualified
+           file_agents_qualified].each { |index_elt| rights.index_elements[index_elt].uniq! }
       end
 
       rights

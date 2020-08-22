@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'nokogiri'
 
@@ -8,22 +10,22 @@ describe 'XSD with <include> subcomponent' do
     druidlist = Nokogiri::XML::Schema(File.open(path))
 
     it 'succeeds for conformant data' do
-      xmlblock = <<-'EOXML'
-<druidlist>
-<druid>vh098ff0657</druid>
-<druid>tp736tw2065</druid>
-<druid>qm691hk9133</druid>
-<druid>dy555zk9425</druid>
-<druid>td692bt6464</druid>
-<druid>kj269pw9870</druid>
-<druid>tf943ng9312</druid>
-<druid>hh193pj0046</druid>
-<druid>wj852rz5419  </druid>
-<druid> wf879xg3194</druid>
-<druid>
-    sf031xg8376
-</druid>
-</druidlist>
+      xmlblock = <<~'EOXML'
+        <druidlist>
+        <druid>vh098ff0657</druid>
+        <druid>tp736tw2065</druid>
+        <druid>qm691hk9133</druid>
+        <druid>dy555zk9425</druid>
+        <druid>td692bt6464</druid>
+        <druid>kj269pw9870</druid>
+        <druid>tf943ng9312</druid>
+        <druid>hh193pj0046</druid>
+        <druid>wj852rz5419  </druid>
+        <druid> wf879xg3194</druid>
+        <druid>
+            sf031xg8376
+        </druid>
+        </druidlist>
       EOXML
       xml = Nokogiri::XML(xmlblock)
       expect(druidlist).to be
@@ -37,11 +39,11 @@ describe 'XSD with <include> subcomponent' do
     end
 
     {
-      'tp736tw205'   => 'too short',
+      'tp736tw205' => 'too short',
       'dy555zk94255' => 'too long',
-      'tf943n!9312'  => 'illegal character',
-      'wj852r5z419'  => 'wrong positions',
-      'wj852 5z419'  => 'internal whitespace'
+      'tf943n!9312' => 'illegal character',
+      'wj852r5z419' => 'wrong positions',
+      'wj852 5z419' => 'internal whitespace'
     }.each { |k, v|
       it "catches bad value (#{v})" do
         xmlblock = "<druidlist><druid>#{k}</druid></druidlist>"
