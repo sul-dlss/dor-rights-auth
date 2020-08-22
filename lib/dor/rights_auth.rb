@@ -10,7 +10,7 @@ module Dor
   Rights = Struct.new(:value, :rule)
 
   # Rights for an object or File
-  EntityRights = Struct.new(:world, :group, :agent, :location, :controlledDigitalLending)
+  EntityRights = Struct.new(:world, :group, :agent, :location, :controlled_digital_lending)
   # class EntityRights
   #   @world = #Rights
   #   @group {
@@ -20,6 +20,7 @@ module Dor
   #     'app1' => #Rights,
   #     'app2' => #Rights
   #   }
+  #   @controlled_digital_lending = false
   # end
 
   # class Dor::RightsAuth
@@ -99,7 +100,7 @@ module Dor
     # Returns true if the object is enabled for controlled digital lending
     # @return [Boolean]
     def controlled_digital_lending?
-      @obj_lvl.controlledDigitalLending
+      @obj_lvl.controlled_digital_lending
     end
 
     # Returns true if the object is stanford-only readable AND has no rule attribute
@@ -458,12 +459,12 @@ module Dor
 
       # TODO: we should also look for the <group rule="no-download">stanford</group> node and parse as needed
       if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/cdl")
-        rights.obj_lvl.controlledDigitalLending = true
+        rights.obj_lvl.controlled_digital_lending = true
       else
-        rights.obj_lvl.controlledDigitalLending = false
+        rights.obj_lvl.controlled_digital_lending = false
       end
 
-      rights.obj_lvl.group  = { :stanford => Rights.new }
+      rights.obj_lvl.group = { :stanford => Rights.new }
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true

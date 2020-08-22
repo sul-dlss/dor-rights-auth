@@ -21,10 +21,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include('no_discover_access')
+      expect(i[:errors]).to include('no_discover_access')
       expect(i[:primary]).to eq 'dark'
-      expect(i[:terms]  ).to include('has_rule', 'world|no-download', 'world_read')
-      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+      expect(i[:terms]).to include('has_rule', 'world|no-download', 'world_read')
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
 
     it 'Missing-read' do
@@ -40,10 +40,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include('no_read_access')
+      expect(i[:errors]).to include('no_read_access')
       expect(i[:primary]).to eq 'citation'
-      expect(i[:terms]  ).to include('world_discover')
-      expect(i[:terms]  ).not_to include('has_rule', 'world_read', 'world|no-download', 'none_read', 'none_discover')
+      expect(i[:terms]).to include('world_discover')
+      expect(i[:terms]).not_to include('has_rule', 'world_read', 'world|no-download', 'none_read', 'none_discover')
     end
 
     it 'Missing-discover machine' do
@@ -63,10 +63,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include('no_discover_machine')
+      expect(i[:errors]).to include('no_discover_machine')
       expect(i[:primary]).to eq 'dark'
-      expect(i[:terms]  ).to include('has_rule', 'world|no-download', 'world_read')
-      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+      expect(i[:terms]).to include('has_rule', 'world|no-download', 'world_read')
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
 
     it 'No machines (read or discover)' do
@@ -83,9 +83,9 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to include('no_discover_machine', 'no_read_machine')
+      expect(i[:errors]).to include('no_discover_machine', 'no_read_machine')
       expect(i[:primary]).to eq 'dark'
-      expect(i[:terms]  ).not_to include('has_rule', 'world|no-download', 'world_read', 'none_read', 'none_discover')
+      expect(i[:terms]).not_to include('has_rule', 'world|no-download', 'world_read', 'none_read', 'none_discover')
     end
   end
 
@@ -116,10 +116,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'dark'
-      expect(i[:terms]  ).to include('none_read', 'none_discover', 'none_read_file')
-      expect(i[:terms]  ).not_to include('has_rule', 'world_read', 'world_discover')
+      expect(i[:terms]).to include('none_read', 'none_discover', 'none_read_file')
+      expect(i[:terms]).not_to include('has_rule', 'world_read', 'world_discover')
     end
 
     it 'World-discover world-read single rule' do
@@ -142,10 +142,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'world_qualified'
-      expect(i[:terms]  ).to include('has_rule', 'world_discover', 'world|no-download', 'world_read')
-      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+      expect(i[:terms]).to include('has_rule', 'world_discover', 'world|no-download', 'world_read')
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
   end
 
@@ -170,10 +170,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'access_restricted_qualified'
-      expect(i[:terms]  ).to include('has_rule', 'has_group_rights', 'group|stanford_with_rule', 'world_discover')
-      expect(i[:terms]  ).not_to include('world_read', 'none_read', 'none_discover')
+      expect(i[:terms]).to include('has_rule', 'has_group_rights', 'group|stanford_with_rule', 'world_discover')
+      expect(i[:terms]).not_to include('world_read', 'none_read', 'none_discover')
     end
   end
 
@@ -199,10 +199,10 @@ describe Dor::RightsAuth do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'world_qualified'
-      expect(i[:terms]  ).to include('has_rule', 'has_group_rights', 'group|stanford', 'world_read')
-      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+      expect(i[:terms]).to include('has_rule', 'has_group_rights', 'group|stanford', 'world_read')
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
   end
 
@@ -227,14 +227,15 @@ describe Dor::RightsAuth do
       </objectType>
       XML
     end
+
     it 'adds the cdl_none rule' do
       r = Dor::RightsAuth.parse(rights, true)
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'controlled digital lending'
-      expect(i[:terms]  ).to include('world_discover', 'has_rule', 'cdl_none', 'profile:cdl1')
-      expect(i[:terms]  ).not_to include('none_read', 'none_discover')
+      expect(i[:terms]).to include('world_discover', 'has_rule', 'cdl_none', 'profile:cdl1')
+      expect(i[:terms]).not_to include('none_read', 'none_discover')
     end
   end
 
@@ -262,7 +263,7 @@ describe Dor::RightsAuth do
     it 'single file' do
       i = r.index_elements
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
       expect(i[:primary]).to eq 'world'
       ['world_read',
        'world_discover',
@@ -325,7 +326,7 @@ describe Dor::RightsAuth do
 
     it 'exists and has no errors' do
       expect(i).to be
-      expect(i[:errors] ).to be_empty
+      expect(i[:errors]).to be_empty
     end
 
     it 'has the expected primary value' do

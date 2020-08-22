@@ -49,7 +49,7 @@ describe Dor::RightsAuth do
         expect(rule1).to be_nil
         expect(r).not_to be_readable
         expect(r).not_to be_public_unrestricted
-        expect(r.obj_lvl.controlledDigitalLending).to be
+        expect(r.obj_lvl.controlled_digital_lending).to be
         expect(r.index_elements[:terms].include?('cdl_none')).to be
       end
     end
