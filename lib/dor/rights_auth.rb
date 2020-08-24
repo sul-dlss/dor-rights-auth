@@ -170,6 +170,12 @@ module Dor
       @file[file_name].group[:stanford].value && (stanford_rule.nil? || stanford_rule != NO_DOWNLOAD_RULE)
     end
 
+    def cdl_rights_for_file?(file_name)
+      return controlled_digital_lending? if @file[file_name].nil? || @file[file_name].controlled_digital_lending.nil?
+
+      @file[file_name].controlled_digital_lending.value
+    end
+
     # Returns whether an object-level world node exists, and the value of its rule attribute
     # @return [Array<(Boolean, String)>] First value: existence of node. Second Value: rule attribute, nil otherwise
     # @example Using multiple variable assignment to read both array elements
@@ -514,6 +520,7 @@ module Dor
       access_with_files.each do |access_node|
         stanford_access = Rights.new
         world_access    = Rights.new
+        controlled_digital_lending = Rights.new
         if access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]")
           stanford_access.value = true
           rule = access_node.at_xpath("machine/group[#{CONTAINS_STANFORD_XPATH}]/@rule")
@@ -525,6 +532,14 @@ module Dor
           end
         else
           stanford_access.value = false
+        end
+
+        if access_node.at_xpath('machine/cdl')
+          controlled_digital_lending.value = true
+          rule = access_node.at_xpath('machine/cdl/@rule')
+          controlled_digital_lending.rule = rule.value if rule
+        else
+          controlled_digital_lending.value = false
         end
 
         if access_node.at_xpath('machine/world')
@@ -566,7 +581,7 @@ module Dor
           file_rights.group = { :stanford => stanford_access }
           file_rights.agent = file_agents
           file_rights.location = file_locations
-
+          file_rights.controlled_digital_lending = controlled_digital_lending
           rights.file[f.content] = file_rights
         end
       end
