@@ -69,14 +69,14 @@ describe Dor::RightsAuth do
       end
     end
 
-    describe '#cdl_rights_for_file?' do
+    describe '#cdl_rights_for_file' do
       it 'for object level files, all are readable' do
-        expect(Dor::RightsAuth.parse(cdl_xml).cdl_rights_for_file?('abc123.jp2')).to eq true
+        expect(Dor::RightsAuth.parse(cdl_xml).cdl_rights_for_file('abc123.jp2')).to eq true
       end
 
       it 'file rights, should only be cdl_readable on specified files in the rights' do
-        expect(Dor::RightsAuth.parse(file_cdl_xml).cdl_rights_for_file?('def456.jp2')).to eq true
-        expect(Dor::RightsAuth.parse(file_cdl_xml).cdl_rights_for_file?('otherfile.jp2')).to eq false
+        expect(Dor::RightsAuth.parse(file_cdl_xml).cdl_rights_for_file('def456.jp2')).to eq true
+        expect(Dor::RightsAuth.parse(file_cdl_xml).cdl_rights_for_file('otherfile.jp2')).to eq false
       end
     end
 

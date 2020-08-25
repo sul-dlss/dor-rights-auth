@@ -170,7 +170,7 @@ module Dor
       @file[file_name].group[:stanford].value && (stanford_rule.nil? || stanford_rule != NO_DOWNLOAD_RULE)
     end
 
-    def cdl_rights_for_file?(file_name)
+    def cdl_rights_for_file(file_name)
       return controlled_digital_lending? if @file[file_name].nil? || @file[file_name].controlled_digital_lending.nil?
 
       @file[file_name].controlled_digital_lending.value
