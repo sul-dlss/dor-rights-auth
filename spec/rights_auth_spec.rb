@@ -25,7 +25,7 @@ describe Dor::RightsAuth do
       </rightsMetadata>
     EOXML
   end
-  let(:cdl_xml) do
+  let(:cdl_xml_no_download) do
     <<-XML
       <rightsMetadata>
         <access type="read">
@@ -38,11 +38,35 @@ describe Dor::RightsAuth do
       </rightsMetadata>
     XML
   end
+  let(:cdl_xml) do
+    <<-XML
+      <rightsMetadata>
+        <access type="read">
+          <machine>
+            <cdl/>
+          </machine>
+        </access>
+      </rightsMetadata>
+    XML
+  end
 
   context 'controlled digital lending rights' do
 
     describe '#parse' do
-      it 'indicates that controlled digital lending is set' do
+      it 'indicates that controlled digital lending is set and sets the cdl group rule for no-download' do
+        r = Dor::RightsAuth.parse cdl_xml_no_download, true
+        world, rule1 = r.world_rights
+        expect(world).not_to be
+        expect(rule1).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted
+        expect(r.obj_lvl.controlled_digital_lending).to be
+        expect(r.index_elements[:terms].include?('cdl_none')).to be
+        expect(r.obj_lvl.group[:cdl].value).to be_truthy
+        expect(r.obj_lvl.group[:cdl].rule).to eq 'no-download'
+      end
+
+      it 'indicates that controlled digital lending is set and does no set the cdl group rule for no-download' do
         r = Dor::RightsAuth.parse cdl_xml, true
         world, rule1 = r.world_rights
         expect(world).not_to be
@@ -51,6 +75,8 @@ describe Dor::RightsAuth do
         expect(r).not_to be_public_unrestricted
         expect(r.obj_lvl.controlled_digital_lending).to be
         expect(r.index_elements[:terms].include?('cdl_none')).to be
+        expect(r.obj_lvl.group[:cdl].value).to be_truthy
+        expect(r.obj_lvl.group[:cdl].rule).to be_nil
       end
     end
 

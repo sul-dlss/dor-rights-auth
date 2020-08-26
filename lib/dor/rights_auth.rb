@@ -14,7 +14,8 @@ module Dor
   # class EntityRights
   #   @world = #Rights
   #   @group {
-  #     :stanford => #Rights
+  #     :stanford => #Rights,
+  #     :cdl => #Rights
   #   }
   #   @agent {
   #     'app1' => #Rights,
@@ -443,6 +444,7 @@ module Dor
       rights = Dor::RightsAuth.new
       rights.obj_lvl = EntityRights.new
       rights.obj_lvl.world = Rights.new
+      rights.obj_lvl.group = {}
 
       doc = xml.is_a?(Nokogiri::XML::Document) ? xml.clone : Nokogiri::XML(xml)
 
@@ -457,14 +459,19 @@ module Dor
         rights.obj_lvl.world.value = false
       end
 
-      # TODO: we should also look for the <group rule="no-download">stanford</group> node and parse as needed
-      if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/cdl")
+      rights.obj_lvl.group[:cdl] = Rights.new
+      xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/cdl"
+      if doc.at_xpath(xpath)
         rights.obj_lvl.controlled_digital_lending = true
+        rights.obj_lvl.group[:cdl].value = true
+        rule = doc.at_xpath("#{xpath}/group/@rule")
+        rights.obj_lvl.group[:cdl].rule = rule.value if rule
       else
         rights.obj_lvl.controlled_digital_lending = false
+        rights.obj_lvl.group[:cdl].value = false
       end
 
-      rights.obj_lvl.group = { :stanford => Rights.new }
+      rights.obj_lvl.group[:stanford] = Rights.new
       xpath = "//rightsMetadata/access[@type='read' and not(file)]/machine/group[#{CONTAINS_STANFORD_XPATH}]"
       if doc.at_xpath(xpath)
         rights.obj_lvl.group[:stanford].value = true
