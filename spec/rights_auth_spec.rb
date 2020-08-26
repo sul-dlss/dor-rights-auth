@@ -25,6 +25,45 @@ describe Dor::RightsAuth do
       </rightsMetadata>
     EOXML
   end
+  let(:cdl_xml) do
+    <<-XML
+      <rightsMetadata>
+        <access type="read">
+          <machine>
+            <cdl>
+              <group rule="no-download">stanford</group>
+            </cdl>
+          </machine>
+        </access>
+      </rightsMetadata>
+    XML
+  end
+
+  context 'controlled digital lending rights' do
+
+    describe '#parse' do
+      it 'indicates that controlled digital lending is set' do
+        r = Dor::RightsAuth.parse cdl_xml, true
+        world, rule1 = r.world_rights
+        expect(world).not_to be
+        expect(rule1).to be_nil
+        expect(r).not_to be_readable
+        expect(r).not_to be_public_unrestricted
+        expect(r.obj_lvl.controlled_digital_lending).to be
+        expect(r.index_elements[:terms].include?('cdl_none')).to be
+      end
+    end
+
+    describe '#controlled_digital_lending?' do
+      it 'is true for controlled digital lending rights' do
+        expect(Dor::RightsAuth.parse(cdl_xml)).to be_controlled_digital_lending
+      end
+
+      it 'is false for non controlled digital lending rights' do
+        expect(Dor::RightsAuth.parse(stanford_readable_xml)).not_to be_controlled_digital_lending
+      end
+    end
+  end
 
   describe '#stanford_only_unrestricted?' do
 

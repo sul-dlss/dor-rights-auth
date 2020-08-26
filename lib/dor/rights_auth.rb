@@ -10,7 +10,7 @@ module Dor
   Rights = Struct.new(:value, :rule)
 
   # Rights for an object or File
-  EntityRights = Struct.new(:world, :group, :agent, :location)
+  EntityRights = Struct.new(:world, :group, :agent, :location, :controlled_digital_lending)
   # class EntityRights
   #   @world = #Rights
   #   @group {
@@ -20,6 +20,7 @@ module Dor
   #     'app1' => #Rights,
   #     'app2' => #Rights
   #   }
+  #   @controlled_digital_lending = false
   # end
 
   # class Dor::RightsAuth
@@ -95,6 +96,12 @@ module Dor
       @obj_lvl.world.value && (world_rule.nil? || world_rule != NO_DOWNLOAD_RULE)
     end
     alias_method :public_downloadable?, :world_downloadable?
+
+    # Returns true if the object is enabled for controlled digital lending
+    # @return [Boolean]
+    def controlled_digital_lending?
+      @obj_lvl.controlled_digital_lending
+    end
 
     # Returns true if the object is stanford-only readable AND has no rule attribute
     # @return [Boolean]
@@ -338,6 +345,8 @@ module Dor
       elsif machine.at_xpath('./world')
         terms.push 'world_read'
         terms.push "world|#{machine.at_xpath('./world/@rule').value.downcase}" if machine.at_xpath('./world/@rule')
+      elsif machine.at_xpath('./cdl')
+        terms.push 'cdl_none'
       end
 
       # now some statistical generation
@@ -410,6 +419,8 @@ module Dor
       has_rule = index_terms.include? 'has_rule'
       if index_terms.include?('none_discover')
         'dark'
+      elsif index_terms.include?('cdl_none')
+        'controlled digital lending'
       elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
         'dark'
       elsif errors.include?('no_read_machine') || index_terms.include?('none_read')
@@ -444,6 +455,13 @@ module Dor
         rights.index_elements[:obj_world_qualified] << { :rule => (rule ? rule.value : nil) } if forindex
       else
         rights.obj_lvl.world.value = false
+      end
+
+      # TODO: we should also look for the <group rule="no-download">stanford</group> node and parse as needed
+      if doc.at_xpath("//rightsMetadata/access[@type='read' and not(file)]/machine/cdl")
+        rights.obj_lvl.controlled_digital_lending = true
+      else
+        rights.obj_lvl.controlled_digital_lending = false
       end
 
       rights.obj_lvl.group = { :stanford => Rights.new }
