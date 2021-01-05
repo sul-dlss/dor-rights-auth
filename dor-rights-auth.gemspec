@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = 'Parses rightsMetadata xml into a useable object'
 
   s.required_rubygems_version = '>= 1.3.6'
-  s.required_ruby_version = '~> 2.5'
+  s.required_ruby_version = '> 2.5'
 
   s.add_dependency 'nokogiri'
 
