@@ -55,7 +55,7 @@ describe 'XSD with <include> subcomponent' do
         druidlist.validate(xml).each do |error|
           errors.push error.message
         end
-        expect(errors.size).to eq 2
+        expect(errors.size).to eq 1
       end
     }
 

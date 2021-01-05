@@ -39,7 +39,7 @@ module Dor
 
     attr_accessor :obj_lvl, :file, :embargoed, :index_elements
 
-    # note: index_elements is only valid for the xml as parsed, not after subsequent manipulation
+    # NOTE: index_elements is only valid for the xml as parsed, not after subsequent manipulation
 
     def initialize
       @file = {}
