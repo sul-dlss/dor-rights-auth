@@ -423,12 +423,12 @@ module Dor
     # rights that make more sense at the object level (e.g. 'dark').
     def self.primary_access_rights(index_terms, errors)
       has_rule = index_terms.include? 'has_rule'
-      if index_terms.include?('none_discover')
+      if index_terms.include?('none_discover') ||
+         errors.include?('no_discover_access') ||
+         errors.include?('no_discover_machine')
         'dark'
       elsif index_terms.include?('cdl_none')
         'controlled digital lending'
-      elsif errors.include?('no_discover_access') || errors.include?('no_discover_machine')
-        'dark'
       elsif errors.include?('no_read_machine') || index_terms.include?('none_read')
         'citation'
       elsif index_terms.include? 'world_read'
