@@ -181,7 +181,7 @@ describe Dor::RightsAuth do
 
           it 'file is restricted per second access block only' do
             expect(rights).to be_restricted_by_location('location-or-stanford-protected.doc')
-            expect(rights).not_to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
+            expect(rights).to be_stanford_only_unrestricted_file('location-or-stanford-protected.doc')
           end
         end
 

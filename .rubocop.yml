@@ -11,10 +11,6 @@ AllCops:
 Layout/LineLength:
   Max: 120
 
-Metrics/BlockLength:
-  Exclude:
-    - 'spec/**/*'
-
 # Configuration parameters: Exclude.
 Style/Documentation:
   Exclude:

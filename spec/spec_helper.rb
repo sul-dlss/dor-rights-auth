@@ -12,4 +12,5 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   Coveralls::SimpleCov::Formatter
 ]
 
+require 'byebug'
 require 'dor/rights_auth'

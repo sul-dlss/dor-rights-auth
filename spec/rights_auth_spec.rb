@@ -54,8 +54,40 @@ describe Dor::RightsAuth do
     XML
   end
 
-  context 'controlled digital lending rights' do
+  describe 'stanford + world (no-download) for a file' do
+    it 'includes both in a single struct' do
+      xml = <<-EOXML
+        <rightsMetadata>
+          <access type="read">
+            <file>interviews1.doc</file>
+            <machine>
+              <group>stanford</group>
+            </machine>
+          </access>
+          <access type="read">
+            <file>interviews1.doc</file>
+            <machine>
+              <world rule='no-download'/>
+            </machine>
+          </access>
+          <access type="read">
+            <machine>
+              <world />
+            </machine>
+          </access>
+        </rightsMetadata>
+      EOXML
 
+      rights = Dor::RightsAuth.parse(xml)
+      file_rights = rights.file['interviews1.doc']
+      expect(file_rights.world.value).to be(true)
+      expect(file_rights.world.rule).to eq('no-download')
+      expect(file_rights.group.fetch(:stanford).value).to be(true)
+      expect(file_rights.group.fetch(:stanford).rule).to be_nil
+    end
+  end
+
+  context 'controlled digital lending rights' do
     describe '#parse' do
       it 'indicates that controlled digital lending is set' do
         r = Dor::RightsAuth.parse cdl_xml, true

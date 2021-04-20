@@ -516,8 +516,11 @@ module Dor
         rights.embargoed = true if embargo_dt > Time.now
       end
 
-      access_with_files = doc.xpath("//rightsMetadata/access[@type='read' and file]")
-      access_with_files.each do |access_node|
+      unique_files = doc.xpath("//rightsMetadata/access[@type='read']/file").map(&:text).uniq
+      unique_files.each do |filename|
+        access_node = combine_file_access_nodes(
+          doc.xpath("//rightsMetadata/access[@type='read'][file/text()='#{filename}']")
+        )
         stanford_access = Rights.new
         world_access    = Rights.new
         controlled_digital_lending = Rights.new
@@ -606,5 +609,14 @@ module Dor
       rights
     end
 
+    def self.combine_file_access_nodes(node_set)
+      node_set.first.clone.tap do |combined_node|
+        node_set.drop(1).each do |node|
+          node.xpath('machine/*').each do |element|
+            combined_node.at('machine').add_child(element)
+          end
+        end
+      end
+    end
   end
 end
