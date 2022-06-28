@@ -11,18 +11,18 @@ Gem::Specification.new do |s|
   s.email       = ['dlss-infrastructure-team@lists.stanford.edu']
   s.summary     = 'Parses rightsMetadata xml into a useable object'
   s.description = 'Parses rightsMetadata xml into a useable object'
-
+  s.metadata['rubygems_mfa_required'] = 'true'
   s.required_rubygems_version = '>= 1.3.6'
   s.required_ruby_version = '> 2.5'
 
   s.add_dependency 'nokogiri'
 
   s.add_development_dependency 'codeclimate-test-reporter'
-  s.add_development_dependency 'coveralls'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 3.0'
   s.add_development_dependency 'rubocop'
   s.add_development_dependency 'rubocop-rspec'
+  s.add_development_dependency 'simplecov'
   s.add_development_dependency 'yard'
 
   s.files        = Dir.glob('lib/**/*')
