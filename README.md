@@ -1,6 +1,6 @@
-![CI](https://github.com/sul-dlss/dor-rights-auth/workflows/CI/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/sul-dlss/dor-rights-auth/badge.svg?branch=main)](https://coveralls.io/github/sul-dlss/dor-rights-auth?branch=main)
-[![Code Climate](https://codeclimate.com/github/sul-dlss/dor-rights-auth/badges/gpa.svg)](https://codeclimate.com/github/sul-dlss/dor-rights-auth)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/sul-dlss/dor-rights-auth/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/sul-dlss/dor-rights-auth/tree/main)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3f657524aa5f8937ebea/maintainability)](https://codeclimate.com/github/sul-dlss/dor-rights-auth/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/3f657524aa5f8937ebea/test_coverage)](https://codeclimate.com/github/sul-dlss/dor-rights-auth/test_coverage)
 [![Gem Version](https://badge.fury.io/rb/dor-rights-auth.svg)](https://badge.fury.io/rb/dor-rights-auth)
 
 ## DOR Rights Auth
