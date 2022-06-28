@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ['dlss-infrastructure-team@lists.stanford.edu']
   s.summary     = 'Parses rightsMetadata xml into a useable object'
   s.description = 'Parses rightsMetadata xml into a useable object'
-
+  s.metadata['rubygems_mfa_required'] = 'true'
   s.required_rubygems_version = '>= 1.3.6'
   s.required_ruby_version = '> 2.5'
 
