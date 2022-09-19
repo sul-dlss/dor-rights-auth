@@ -56,7 +56,7 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    unicode-display_width (2.2.0)
+    unicode-display_width (2.3.0)
     webrick (1.7.0)
     yard (0.9.28)
       webrick (~> 1.7.0)
