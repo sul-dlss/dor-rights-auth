@@ -11,3 +11,4 @@ end
 require 'bundler/setup'
 require 'rspec'
 require 'dor/rights_auth'
+require 'debug'

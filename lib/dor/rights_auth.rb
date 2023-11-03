@@ -37,13 +37,14 @@ module Dor
     CONTAINS_STANFORD_XPATH = "contains(translate(text(), 'STANFORD', 'stanford'), 'stanford')"
     NO_DOWNLOAD_RULE = 'no-download'
 
-    attr_accessor :obj_lvl, :file, :embargoed, :index_elements
+    attr_accessor :obj_lvl, :file, :embargoed, :embargo_release_date, :index_elements
 
     # NOTE: index_elements is only valid for the xml as parsed, not after subsequent manipulation
 
     def initialize
       @file = {}
       @index_elements = {}
+      @embargoed = false
     end
 
     # Returns true if the object is under embargo.
@@ -508,12 +509,11 @@ module Dor
         end
       end
 
-      # Initialze embargo_status to false
-      rights.embargoed = false
       embargo_node = doc.at_xpath("//rightsMetadata/access[@type='read']/machine/embargoReleaseDate")
       if embargo_node
         embargo_dt = Time.parse(embargo_node.content)
         rights.embargoed = true if embargo_dt > Time.now
+        rights.embargo_release_date = embargo_dt
       end
 
       access_with_files = doc.xpath("//rightsMetadata/access[@type='read' and file]")
